@@ -1,5 +1,3 @@
-## Main API URL
-default_domain <- "https://canvas.instructure.com"
 
 ## Headers to send with each API request
 default_send_headers <- c("Accept" = "application/json",
@@ -106,7 +104,7 @@ gh_set_url <- function(x) {
     x$url <- URLencode(x$endpoint)
   } else {
     api_url <- x$api_url %||%
-      paste0(Sys.getenv('CANVAS_DOMAIN', unset = default_domain), "/api/v1")
+      paste0(cnvs_domain(), "/api/v1")
     x$url <- URLencode(paste0(api_url, x$endpoint))
   }
 
@@ -126,18 +124,20 @@ gh_set_dest <- function(x) {
 ## functions to retrieve request elements
 ## possibly consult an env var or combine with a built-in default
 
-#' Return the local user's GitHub Personal Access Token (PAT)
+#' Return the local user's Canvas token and domain
 #'
-#' You can read more about PATs here:
-#' <https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/>
-#' and you can access your PATs here (if logged in to GitHub):
-#' <https://github.com/settings/tokens>.
+#' You will need a Canvas access token, which you can get by following the instructions here:
+#'  <https://canvas.instructure.com/doc/api/file.oauth.html#manual-token-generation>
 #'
-#' Currently it consults the `GITHUB_PAT` and `GITHUB_TOKEN`
-#' environment variables, in this order.
+#' Canvas access tokens are specific to your user account on a specific
+#' canvas domain, e.g. you cannot use the token for your University's site on
+#' the instructure site (<https://canvas.instructure.com>).
+#'
+#' Currently, it consults the `CANVAS_API_TOKEN` and `CANVAS_DOMAIN`
+#' environment variables. Read more about setting these in \code{\link{cnvs_whoami}}.
 #'
 #' @return A string, with the token, or a zero length string scalar,
-#' if no token is available.
+#' if no token or domain is available.
 #'
 #' @export
 
@@ -150,6 +150,16 @@ cnvs_token <- function() {
   token
 }
 
+#' @rdname cnvs_token
+#' @export
+cnvs_domain <- function() {
+  domain <- Sys.getenv("CANVAS_DOMAIN", "")
+  if (identical(domain, "")) {
+    stop("Please set env var CANVAS_DOMAIN to your canvas domain.",
+      call. = FALSE)
+  }
+  domain
+}
 
 cnvs_auth <- function(token) {
   if (isTRUE(token != "")) {
@@ -158,6 +168,8 @@ cnvs_auth <- function(token) {
     character()
   }
 }
+
+
 
 gh_send_headers <- function(headers = NULL) {
   modify_vector(default_send_headers, headers)

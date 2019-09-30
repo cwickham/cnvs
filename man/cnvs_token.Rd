@@ -2,21 +2,26 @@
 % Please edit documentation in R/gh_request.R
 \name{cnvs_token}
 \alias{cnvs_token}
-\title{Return the local user's GitHub Personal Access Token (PAT)}
+\alias{cnvs_domain}
+\title{Return the local user's Canvas token and domain}
 \usage{
 cnvs_token()
+
+cnvs_domain()
 }
 \value{
 A string, with the token, or a zero length string scalar,
-if no token is available.
+if no token or domain is available.
 }
 \description{
-You can read more about PATs here:
-\url{https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/}
-and you can access your PATs here (if logged in to GitHub):
-\url{https://github.com/settings/tokens}.
+You will need a Canvas access token, which you can get by following the instructions here:
+\url{https://canvas.instructure.com/doc/api/file.oauth.html#manual-token-generation}
 }
 \details{
-Currently it consults the \code{GITHUB_PAT} and \code{GITHUB_TOKEN}
-environment variables, in this order.
+Canvas access tokens are specific to your user account on a specific
+canvas domain, e.g. you cannot use the token for your University's site on
+the instructure site (\url{https://canvas.instructure.com}).
+
+Currently, it consults the \code{CANVAS_API_TOKEN} and \code{CANVAS_DOMAIN}
+environment variables. Read more about setting these in \code{\link{cnvs_whoami}}.
 }

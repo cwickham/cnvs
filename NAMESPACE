@@ -2,6 +2,7 @@
 
 S3method(print,gh_response)
 export(cnvs)
+export(cnvs_domain)
 export(cnvs_token)
 export(cnvs_whoami)
 export(gh_first)

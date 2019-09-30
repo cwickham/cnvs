@@ -142,6 +142,14 @@ gh_set_dest <- function(x) {
 
 cnvs_token <- function() {
   token <- Sys.getenv("CANVAS_API_TOKEN", "")
+  if (isTRUE(token == "")) {
+    stop("No personal access token (PAT) available.\n",
+      "Obtain a PAT from here:\n",
+      cnvs_domain(), "/profile/settings\n",
+      "For more on what to do with the PAT, see ?cnvs_whoami.",
+      call. = FALSE)
+    return(invisible(NULL))
+  }
   token
 }
 
@@ -149,6 +157,12 @@ cnvs_token <- function() {
 #' @export
 cnvs_domain <- function() {
   domain <- Sys.getenv("CANVAS_DOMAIN", "")
+  if (isTRUE(domain == "")) {
+    stop("No Canvas domain available.\n",
+      "Either set the environment variable CANVAS_DOMAIN, \n",
+      "or, pass the argument `.api_url`.\n",
+      "For more info see ?cnvs_whoami.", call. = FALSE)
+  }
   domain
 }
 

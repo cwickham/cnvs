@@ -44,20 +44,7 @@
 cnvs_whoami <- function(.token = NULL, .api_url = NULL, .send_headers = NULL) {
   .token <- .token %||% cnvs_token()
   .domain <- .api_url %||% cnvs_domain()
-   if (isTRUE(.domain == "")) {
-    message("No Canvas domain available.\n",
-      "Either set the environment variable CANVAS_DOMAIN, \n",
-      "or, pass to the argument `.api_url`.\n",
-      "For more info see ?cnvs_whoami.")
-    return(invisible(NULL))
-  }
-  if (isTRUE(.token == "")) {
-    message("No personal access token (PAT) available.\n",
-            "Obtain a PAT from here:\n",
-            .domain, "/profile/settings\n",
-            "For more on what to do with the PAT, see ?cnvs_whoami.")
-    return(invisible(NULL))
-  }
+
   res <- cnvs(endpoint = "/api/v1/users/self/profile", .token = .token,
             .api_url = .api_url, .send_headers = .send_headers)
   res <- res[c("name", "login_id")]

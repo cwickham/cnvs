@@ -1,7 +1,7 @@
 
 ## Headers to send with each API request
 default_send_headers <- c("Accept" = "application/json",
-                          "User-Agent" = "cwickham@gmail.com")
+                          "User-Agent" = "https://github.com/cwickham/cnvs")
 
 gh_build_request <- function(endpoint = "/courses", params = list(),
                              token = NULL, destfile = NULL, overwrite = NULL,

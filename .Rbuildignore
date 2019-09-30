@@ -6,8 +6,7 @@
 ^appveyor.yml$
 ^NEWS\.md$
 ^tags$
-^tests/testthat/github-token\.txt$
+^tests/testthat/canvas-token\.txt$
 ^CONTRIBUTING\.md$
 ^tests/testthat/httrmock$
 ^\.github$
-^README\.Rmd$

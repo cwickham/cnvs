@@ -8,42 +8,43 @@ knitr::opts_chunk$set(
   fig.height = 8)
 ```
 
-# gh
+# cnvs
 
-> GitHub API
+<!-- badges: start -->
+  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+  <!-- badges: end -->
 
-[![Linux Build Status](https://travis-ci.org/r-lib/gh.svg?branch=master)](https://travis-ci.org/r-lib/gh)
-[![Windows Build status](https://ci.appveyor.com/api/projects/status/github/r-lib/gh?svg=true)](https://ci.appveyor.com/project/gaborcsardi/gh)
-[![](http://www.r-pkg.org/badges/version/gh)](http://www.r-pkg.org/pkg/gh)
-[![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/gh)](http://www.r-pkg.org/pkg/gh)
-[![Coverage Status](https://img.shields.io/codecov/c/github/r-lib/gh/master.svg)](https://codecov.io/github/r-lib/gh?branch=master)
+> Canvas LMS API
 
-Minimalistic client to access
-[GitHub's API v3](https://developer.github.com/v3/).
+Minimalistic client to access the
+[Canvas LMS API](https://canvas.instructure.com/doc/api/index.html).
+
+Heavily borrowing from the infrastructure of [gh](https://github.com/r-lib/gh) 
 
 ## Installation
 
-Install the package from CRAN as usual:
+Install the package from GitHub as usual:
 
 ```{r eval = FALSE}
-install.packages("gh")
+# install.packages("remotes")
+remotes::install_github("cwickham/cnvs")
 ```
 
 ## Usage
 
 ```{r}
-library(gh)
+library(cnvs)
 ```
 
-Use the `gh()` function to access all API endpoints. The endpoints are
-listed in the [documentation](https://developer.github.com/v3/).
+Use the `cnvs()` function to access all API endpoints. The endpoints are
+listed in the [documentation](https://canvas.instructure.com/doc/api/index.html).
 
-The first argument of `gh()` is the endpoint. Note that the leading slash
+The first argument of `cnvs()` is the endpoint. Note that the leading slash
 must be included as well. Parameters can be passed as extra arguments. E.g.
 
 ```{r}
-my_repos <- gh("/user/repos", type = "public")
-vapply(my_repos, "[[", "", "name")
+my_courses <- cnvs("/courses", enrollment_type = "teacher")
+vapply(my_courses, "[[", "", "name")
 ```
 
 The JSON result sent by the API is converted to an R object.
@@ -52,11 +53,14 @@ If the end point itself has parameters, these can also be passed
 as extra arguments:
 
 ```{r}
-j_repos <- gh("/users/:username/repos", username = "jeroen")
-vapply(j_repos, "[[", "", "name")
+vis_modules <- cnvs("/courses/:course_id/modules", 
+  course_id = 1724191)
+vapply(vis_modules, "[[", "", "name")
 ```
 
 ### POST, PATCH, PUT and DELETE requests
+
+**Not yet tested**
 
 POST, PATCH, PUT, and DELETE requests can be sent by including the
 HTTP verb before the endpoint, in the first argument. E.g. to
@@ -82,7 +86,7 @@ one can set the `.token` argument of `gh()`.
 
 Supply the `page` parameter to get subsequent pages:
 
-```{r}
+```{r eval = FALSE}
 my_repos2 <- gh("GET /users/:username/repos", username = "gaborcsardi",
   type = "public", page = 2)
 vapply(my_repos2, "[[", "", "name")

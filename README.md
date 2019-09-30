@@ -26,6 +26,13 @@ Install the package from GitHub as usual:
 remotes::install_github("cwickham/cnvs")
 ```
 
+### Domain and Access Tokens
+
+By default the canvas domain and token are looked for in the environment
+variables `CANVAS_DOMAIN` and `CANVAS_API_TOKEN`. You can read about
+setting these in `?cnvas_whoami`. Alternatively, one can set the
+`.token` and `.api_endpoint` arguments of `cnvs()`.
+
 ## Usage
 
 ``` r
@@ -96,19 +103,14 @@ gh("DELETE /repos/:owner/:repo", owner = "gaborcsardi",
    repo = "my-new-repo-for-gh-testing")
 ```
 
-### Tokens
-
-By default the `GITHUB_PAT` environment variable is used. Alternatively,
-one can set the `.token` argument of `gh()`.
-
 ### Pagination
 
 Supply the `page` parameter to get subsequent pages:
 
 ``` r
-my_repos2 <- gh("GET /users/:username/repos", username = "gaborcsardi",
-  type = "public", page = 2)
-vapply(my_repos2, "[[", "", "name")
+my_courses2 <- cnvs("/api/v1/courses", enrollment_type = "teacher",
+  page = 2)
+vapply(my_courses2, "[[", "", "name")
 ```
 
 ## License

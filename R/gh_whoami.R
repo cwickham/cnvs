@@ -46,20 +46,18 @@
 #' gh_whoami(.token = "8c70fd8419398999c9ac5bacf3192882193cadf2",
 #'           .api_url = "https://github.foobar.edu/api/v3")
 #' }
-gh_whoami <- function(.token = NULL, .api_url = NULL, .send_headers = NULL) {
-  .token <- .token %||% gh_token()
+cnvs_whoami <- function(.token = NULL, .api_url = NULL, .send_headers = NULL) {
+  .token <- .token %||% cnvs_token()
   if (isTRUE(.token == "")) {
     message("No personal access token (PAT) available.\n",
             "Obtain a PAT from here:\n",
-            "https://github.com/settings/tokens\n",
-            "For more on what to do with the PAT, see ?gh_whoami.")
+            "https://{YOUR CANVAS DOMAIN}/profile/settings\n",
+            "For more on what to do with the PAT, see ?cnvs_whoami.")
     return(invisible(NULL))
   }
-  res <- gh(endpoint = "/user", .token = .token,
+  res <- cnvs(endpoint = "/users/self/profile", .token = .token,
             .api_url = .api_url, .send_headers = .send_headers)
-  scopes <- attr(res, "response")[["x-oauth-scopes"]]
-  res <- res[c("name", "login", "html_url")]
-  res$scopes <- scopes
+  res <- res[c("name", "login_id")]
   res$token <- obfuscate(.token)
   ## 'gh_response' class has to be restored
   class(res) <- c("gh_response", "list")

@@ -5,7 +5,7 @@ gh_process_response <- function(response) {
   }
 
   content_type <- http_type(response)
-  gh_media_type <- headers(response)[["x-github-media-type"]]
+  gh_media_type <- headers(response)[["content-type"]]
   is_raw <- grepl("param=raw$", gh_media_type, ignore.case = TRUE)
   is_ondisk <- inherits(response$content, "path")
   if (length(content(response)) == 0) {
@@ -44,7 +44,7 @@ gh_error <- function(response, call = sys.call(-1)) {
 
   msg <- c(
     "",
-    paste0("GitHub API error (", status, "): ", heads$status),
+    paste0("Canvas API error (", status, "): ", heads$status),
     paste0("Message: ", res$message)
   )
 

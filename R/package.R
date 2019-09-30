@@ -119,7 +119,7 @@ NULL
 #' }
 #'
 
-gh <- function(endpoint, ..., per_page = NULL, .token = NULL, .destfile = NULL,
+cnvs <- function(endpoint, ..., per_page = NULL, .token = NULL, .destfile = NULL,
                .overwrite = FALSE, .api_url = NULL, .method = "GET",
                .limit = NULL, .send_headers = NULL
                ) {

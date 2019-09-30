@@ -1,11 +1,11 @@
 ## Main API URL
-default_api_url <- "https://api.github.com"
+default_domain <- "https://canvas.instructure.com"
 
 ## Headers to send with each API request
-default_send_headers <- c("Accept" = "application/vnd.github.v3+json",
-                          "User-Agent" = "https://github.com/r-lib/gh")
+default_send_headers <- c("Accept" = "application/json",
+                          "User-Agent" = "cwickham@gmail.com")
 
-gh_build_request <- function(endpoint = "/user", params = list(),
+gh_build_request <- function(endpoint = "/courses", params = list(),
                              token = NULL, destfile = NULL, overwrite = NULL,
                              send_headers = NULL,
                              api_url = NULL, method = "GET") {
@@ -95,7 +95,7 @@ gh_set_body <- function(x) {
 }
 
 gh_set_headers <- function(x) {
-  auth <- gh_auth(x$token %||% gh_token())
+  auth <- cnvs_auth(x$token %||% cnvs_token())
   send_headers <- gh_send_headers(x$send_headers)
   x$headers <- c(send_headers, auth)
   x
@@ -105,7 +105,8 @@ gh_set_url <- function(x) {
   if (grepl("^https?://", x$endpoint)) {
     x$url <- URLencode(x$endpoint)
   } else {
-    api_url <- x$api_url %||% Sys.getenv('GITHUB_API_URL', unset = default_api_url)
+    api_url <- x$api_url %||%
+      paste0(Sys.getenv('CANVAS_DOMAIN', unset = default_domain), "/api/v1")
     x$url <- URLencode(paste0(api_url, x$endpoint))
   }
 
@@ -140,14 +141,19 @@ gh_set_dest <- function(x) {
 #'
 #' @export
 
-gh_token <- function() {
-  token <- Sys.getenv('GITHUB_PAT', "")
-  if (token == "") Sys.getenv("GITHUB_TOKEN", "") else token
+cnvs_token <- function() {
+  token <- Sys.getenv("CANVAS_API_TOKEN", "")
+  if (identical(token, "")) {
+    stop("Please set env var CANVAS_API_TOKEN to your access token.",
+      call. = FALSE)
+  }
+  token
 }
 
-gh_auth <- function(token) {
+
+cnvs_auth <- function(token) {
   if (isTRUE(token != "")) {
-    c("Authorization" = paste("token", token))
+    c("Authorization" = paste("Bearer", token))
   } else {
     character()
   }

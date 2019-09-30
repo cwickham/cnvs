@@ -60,7 +60,7 @@ cnvs_whoami <- function(.token = NULL, .api_url = NULL, .send_headers = NULL) {
   res <- res[c("name", "login_id")]
   res$token <- obfuscate(.token)
   ## 'gh_response' class has to be restored
-  class(res) <- c("gh_response", "list")
+  class(res) <- c("cnvs_response", "list")
   res
 }
 

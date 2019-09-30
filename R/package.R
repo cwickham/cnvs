@@ -115,7 +115,7 @@ cnvs <- function(endpoint, ..., per_page = NULL, .token = NULL, .destfile = NULL
   res <- gh_process_response(raw)
 
   while (!is.null(.limit) && length(res) < .limit && gh_has_next(res)) {
-    res2 <- gh_next(res)
+    res2 <- cnvs_next(res)
     res3 <- c(res, res2)
     attributes(res3) <- attributes(res2)
     res <- res3

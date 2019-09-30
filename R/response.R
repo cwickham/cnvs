@@ -27,11 +27,11 @@ gh_process_response <- function(response) {
   attr(res, "response") <- headers(response)
   attr(res, ".send_headers") <- response$request$headers
   if (is_ondisk) {
-    class(res) <- c("gh_response", "path")
+    class(res) <- c("cnvs_response", "path")
   } else if (is_raw) {
-    class(res) <- c("gh_response", "raw")
+    class(res) <- c("cnvs_response", "raw")
   } else {
-    class(res) <- c("gh_response", "list")
+    class(res) <- c("cnvs_response", "list")
   }
   res
 }
@@ -75,7 +75,7 @@ gh_error <- function(response, call = sys.call(-1)) {
     message = paste0(msg, collapse = "\n")
   ),
   class = c(
-    "github_error",
+    "canvas_error",
     paste0("http_error_", status),
     "error",
     "condition"

@@ -103,8 +103,7 @@ gh_set_url <- function(x) {
   if (grepl("^https?://", x$endpoint)) {
     x$url <- URLencode(x$endpoint)
   } else {
-    api_url <- x$api_url %||%
-      paste0(cnvs_domain(), "/api/v1")
+    api_url <- x$api_url %||% cnvs_domain()
     x$url <- URLencode(paste0(api_url, x$endpoint))
   }
 

@@ -37,11 +37,12 @@ listed in the
 [documentation](https://canvas.instructure.com/doc/api/index.html).
 
 The first argument of `cnvs()` is the endpoint. Note that the leading
-slash must be included as well. Parameters can be passed as extra
+`/api/v1/` must be included as well, but this facilitates copy and
+pasting direct from the documentation. Parameters can be passed as extra
 arguments. E.g.
 
 ``` r
-my_courses <- cnvs("/courses", enrollment_type = "teacher")
+my_courses <- cnvs("/api/v1/courses", enrollment_type = "teacher")
 vapply(my_courses, "[[", "", "name")
 #>  [1] "DATA VISUALIZATION (ST_537_400_S2017)"           
 #>  [2] "DATA VISUALIZATION (ST_537_400_S2018)"           
@@ -61,7 +62,7 @@ If the end point itself has parameters, these can also be passed as
 extra arguments:
 
 ``` r
-vis_modules <- cnvs("/courses/:course_id/modules", 
+vis_modules <- cnvs("/api/v1/courses/:course_id/modules", 
   course_id = 1724191)
 vapply(vis_modules, "[[", "", "name")
 #>  [1] "Start Here - Introduction"                                  

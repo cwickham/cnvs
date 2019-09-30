@@ -1,15 +1,16 @@
-Package: gh
-Title: 'GitHub' 'API'
-Version: 1.0.1
+Package: cnvs
+Title: 'Canvas LMS' 'API'
+Version: 0.0.0.9000
 Authors@R:
-    c(person("Gábor", "Csárdi",, "csardi.gabor@gmail.com", c("cre", "ctb")),
-      person("Jennifer", "Bryan", role = "aut"),
-      person("Hadley", "Wickham", role = "aut"))
-Description: Minimal client to access the 'GitHub' 'API'.
+    c(person("Charlotte", "Wickham", email = "cwickham@gmai.com", role = c("cre", "ctb")),
+      person("Gábor", "Csárdi", role = "aut", comment = "gh package"),
+      person("Jennifer", "Bryan", role = "aut", comment = "gh package"),
+      person("Hadley", "Wickham", role = "aut", comment = "gh package"))
+Description: Minimal client to access the 'Canvas LMS' 'API'.
 License: MIT + file LICENSE
 LazyData: true
-URL: https://github.com/r-lib/gh#readme
-BugReports: https://github.com/r-lib/gh/issues
+URL: https://github.com/cwickham/cnvs#readme
+BugReports: https://github.com/cwickham/cnvs/issues
 Suggests:
     covr,
     pingr,
@@ -18,6 +19,6 @@ Imports:
     ini,
     jsonlite,
     httr
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

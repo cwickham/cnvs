@@ -90,4 +90,8 @@ vapply(my_repos2, "[[", "", "name")
 
 ## License
 
-MIT © Gábor Csárdi, Jennifer Bryan, Hadley Wickham
+cnvs: MIT © Charlotte Wickham
+
+The code is mostly minor edits to the [gh](https://github.com/r-lib/gh) package:
+
+gh: MIT © Gábor Csárdi, Jennifer Bryan, Hadley Wickham

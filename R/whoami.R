@@ -1,63 +1,67 @@
-#' Info on current GitHub user and token
+#' Info on current Canvas user, domain and token
 #'
-#' Reports wallet name, GitHub login, and GitHub URL for the current
-#' authenticated user, the first bit of the token, and the associated scopes.
-
+#' Reports name and Canvas login ID for the current authenticated user, the
+#' Canvas domain and the first bit of the token.
 #'
-#' Get a personal access token for the GitHub API from
-#' \url{https://github.com/settings/tokens} and select the scopes necessary for
-#' your planned tasks. The \code{repo} scope, for example, is one many are
-#' likely to need. The token itself is a string of 40 letters and digits. You
-#' can store it any way you like and provide explicitly via the \code{.token}
-#' argument to \code{\link{gh}()}.
+#' Your canvas domain is the address of your organizations canvas site, e.g.
+#' \code{https://oregonstate.instructure.com/}, provide this to \code{.api_url}.
 #'
-#' However, many prefer to define an environment variable \code{GITHUB_PAT} (or
-#' \code{GITHUB_TOKEN}) with this value in their \code{.Renviron} file. Add a
-#' line that looks like this, substituting your PAT:
+#' Get a personal access token for your Canvas domain from
+#' \code{\{CANVAS_DOMAIN\/profile/settings}}. The token itself is a string of 66
+#' letters and digits. You can store it any way you like and provide explicitly
+#' via the \code{.token} argument to \code{\link{cnvs}()}.
+#'
+#' However, many prefer to define an environments variable \code{CANVAS_API_TOKEN},
+#' and \code{CANVAS_DOMAIN}, with these values in their \code{.Renviron} file. Add
+#' lines that looks like these, substituting your domain and token:
 #'
 #' \preformatted{
-#' GITHUB_PAT=8c70fd8419398999c9ac5bacf3192882193cadf2
+#' CANVAS_DOMAIN="https://canvas.instructure.com"
+#' CANVAS_API_TOKEN= "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
 #' }
 #'
 #' Put a line break at the end! If you’re using an editor that shows line
-#' numbers, there should be (at least) two lines, where the second one is empty.
-#' Restart R for this to take effect. Call \code{gh_whoami()} to confirm
+#' numbers, there should be (at least) three lines, where the third one is empty.
+#' Restart R for this to take effect. Call \code{cmvs_whoami()} to confirm
 #' success.
 #'
 #' To get complete information on the authenticated user, call
-#' \code{gh("/user")}.
+#' \code{cnvs("/api/v1/user/self")}.
 #'
-#' For token management via API (versus the browser), use the
-#' \href{https://developer.github.com/v3/oauth_authorizations/}{OAuth
-#' Authorizations API}. This API requires Basic Authentication using your
-#' username and password, not tokens, and is outside the scope of the \code{gh}
-#' package.
+#' @inheritParams cnvs
 #'
-#' @inheritParams gh
-#'
-#' @return A \code{gh_response} object, which is also a \code{list}.
+#' @return A \code{cnvs_response} object, which is also a \code{list}.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' gh_whoami()
+#' cnvs_whoami()
 #'
-#' ## explicit token + use with GitHub Enterprise
-#' gh_whoami(.token = "8c70fd8419398999c9ac5bacf3192882193cadf2",
-#'           .api_url = "https://github.foobar.edu/api/v3")
+#' ## explicit token + domain
+#' cnvs_whoami(.token = "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU",
+#'           .api_url = "https://canvas.instructure.com")
 #' }
 cnvs_whoami <- function(.token = NULL, .api_url = NULL, .send_headers = NULL) {
   .token <- .token %||% cnvs_token()
+  .domain <- .api_url %||% cnvs_domain()
+   if (isTRUE(.domain == "")) {
+    message("No Canvas domain available.\n",
+      "Either set the environment variable CANVAS_DOMAIN, \n",
+      "or, pass to the argument `.api_url`.\n",
+      "For more info see ?cnvs_whoami.")
+    return(invisible(NULL))
+  }
   if (isTRUE(.token == "")) {
     message("No personal access token (PAT) available.\n",
             "Obtain a PAT from here:\n",
-            "https://{YOUR CANVAS DOMAIN}/profile/settings\n",
+            .domain, "/profile/settings\n",
             "For more on what to do with the PAT, see ?cnvs_whoami.")
     return(invisible(NULL))
   }
-  res <- cnvs(endpoint = "/users/self/profile", .token = .token,
+  res <- cnvs(endpoint = "/api/v1/users/self/profile", .token = .token,
             .api_url = .api_url, .send_headers = .send_headers)
   res <- res[c("name", "login_id")]
+  res$domain <- .domain
   res$token <- obfuscate(.token)
   ## 'gh_response' class has to be restored
   class(res) <- c("cnvs_response", "list")

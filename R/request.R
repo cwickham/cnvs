@@ -3,7 +3,7 @@
 default_send_headers <- c("Accept" = "application/json",
                           "User-Agent" = "https://github.com/cwickham/cnvs")
 
-gh_build_request <- function(endpoint = "/courses", params = list(),
+gh_build_request <- function(endpoint = "/api/v1/courses", params = list(),
                              token = NULL, destfile = NULL, overwrite = NULL,
                              send_headers = NULL,
                              api_url = NULL, method = "GET") {
@@ -142,10 +142,6 @@ gh_set_dest <- function(x) {
 
 cnvs_token <- function() {
   token <- Sys.getenv("CANVAS_API_TOKEN", "")
-  if (identical(token, "")) {
-    stop("Please set env var CANVAS_API_TOKEN to your access token.",
-      call. = FALSE)
-  }
   token
 }
 
@@ -153,10 +149,6 @@ cnvs_token <- function() {
 #' @export
 cnvs_domain <- function() {
   domain <- Sys.getenv("CANVAS_DOMAIN", "")
-  if (identical(domain, "")) {
-    stop("Please set env var CANVAS_DOMAIN to your canvas domain.",
-      call. = FALSE)
-  }
   domain
 }
 
@@ -167,8 +159,6 @@ cnvs_auth <- function(token) {
     character()
   }
 }
-
-
 
 gh_send_headers <- function(headers = NULL) {
   modify_vector(default_send_headers, headers)

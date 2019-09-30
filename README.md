@@ -26,18 +26,69 @@ Install the package from GitHub as usual:
 remotes::install_github("cwickham/cnvs")
 ```
 
-### Domain and Access Tokens
-
-By default the canvas domain and token are looked for in the environment
-variables `CANVAS_DOMAIN` and `CANVAS_API_TOKEN`. You can read about
-setting these in `?cnvas_whoami`. Alternatively, one can set the
-`.token` and `.api_endpoint` arguments of `cnvs()`.
-
-## Usage
+### Getting started
 
 ``` r
 library(cnvs)
 ```
+
+To use the the API to Canvas you need an access token. Access tokens are
+specific to your user account and Canvas domain. Your Canvas domain,
+`CANVAS_DOMAIN`, is the URL of your institution’s Canvas instance,
+e.g. <https://oregonstate.instructure.com> or, the instance provided by
+Instructure <https://canvas.instructure.com/>.
+
+You can request an access token at: `{CANVAS_DOMAIN}/profile/settings`,
+under “Approved Integrations:”. Once generated, your token is only
+visible once so make sure you copy it.
+
+To verify your token and domain, pass them to the `.token()` and
+`.api_endpoint` arguments of
+`cnvs_whoami()`:
+
+``` r
+cnvs_whoami(.token = "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU",
+           .api_url = "https://canvas.instructure.com")
+```
+
+The result should be successful and include your name and login id:
+
+``` r
+  "name": "Charlotte Wickham",
+  "login_id": "cwickham@gmail.com",
+  "domain": "https://canvas.instructure.com",
+  "token": "mv..."
+```
+
+It is convenient to set environment variables to store your domain and
+token. cnvs looks for these in `CANVAS_DOMAIN` and `CANVAS_API_TOKEN`
+respectively. The easiest way to set them is to edit your `.Renviron`
+file:
+
+``` r
+# install.pacakges("usethis")
+usethis::edit_r_environ()
+```
+
+Add lines like these substituting in your own domain and token:
+
+    CANVAS_DOMAIN="https://canvas.instructure.com"
+    CANVAS_API_TOKEN= "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
+
+Restart R and check by running `cnvs_whoami()` with no arguments:
+
+``` r
+cnvs_whoami()
+```
+
+``` r
+  "name": "Charlotte Wickham",
+  "login_id": "cwickham@gmail.com",
+  "domain": "https://canvas.instructure.com",
+  "token": "mv..."
+```
+
+## Usage
 
 Use the `cnvs()` function to access all API endpoints. The endpoints are
 listed in the
@@ -45,22 +96,16 @@ listed in the
 
 The first argument of `cnvs()` is the endpoint. Note that the leading
 `/api/v1/` must be included as well, but this facilitates copy and
-pasting direct from the documentation. Parameters can be passed as extra
-arguments. E.g.
+pasting directly from the documentation. Parameters can be passed as
+extra arguments. E.g.
 
 ``` r
 my_courses <- cnvs("/api/v1/courses", enrollment_type = "teacher")
 vapply(my_courses, "[[", "", "name")
-#>  [1] "DATA VISUALIZATION (ST_537_400_S2017)"           
-#>  [2] "DATA VISUALIZATION (ST_537_400_S2018)"           
-#>  [3] "DATA VISUALIZATION (ST_537_400_S2019)"           
-#>  [4] "DATA VISUALIZATION (ST_537_400_S2020)"           
-#>  [5] "FOUNDATIONS OF DATA ANALYTICS (ST_516_400_F2016)"
-#>  [6] "FOUNDATIONS OF DATA ANALYTICS (ST_516_400_F2017)"
-#>  [7] "FOUNDATIONS OF DATA ANALYTICS (ST_516_400_F2018)"
-#>  [8] "FOUNDATIONS OF DATA ANALYTICS (ST_516_400_F2019)"
-#>  [9] "INTERNSHIP (ST_410_001_W2015)"                   
-#> [10] "INTERNSHIP (ST_410_001_W2016)"
+#> [1] "ST499/599 Topics in Data Visualization"
+#> [2] "ST505 for ST511"                       
+#> [3] "ST511 Summer 2017"                     
+#> [4] "Stat 499/599, Data Programming in R"
 ```
 
 The JSON result sent by the API is converted to an R object.
@@ -70,18 +115,15 @@ extra arguments:
 
 ``` r
 vis_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1724191)
+  course_id = 946353)
 vapply(vis_modules, "[[", "", "name")
-#>  [1] "Start Here - Introduction"                                  
-#>  [2] "Week 1 - The good and bad of graphics & Describing graphics"
-#>  [3] "Week 2 - Deconstructing and constructing graphics"          
-#>  [4] "Week 3 - Perception"                                        
-#>  [5] "Week 4 - Color and Scales"                                  
-#>  [6] "Week 5 - Principles of tidy data"                           
-#>  [7] "Week 6 - Data manipulation"                                 
-#>  [8] "Week 7 - Exploration"                                       
-#>  [9] "Module 8: Special topics"                                   
-#> [10] "Module 9: Interactive and dynamic visualization"
+#> [1] "Start Here - Introduction"                        
+#> [2] "Week 1 - Bad graphics & Describing graphics"      
+#> [3] "Week 2 - Deconstructing and constructing graphics"
+#> [4] "Week 3 - Perception"                              
+#> [5] "Week 4 - Color and Scales"                        
+#> [6] "Week 5 - Practice"                                
+#> [7] "Week 6"
 ```
 
 ### POST, PATCH, PUT and DELETE requests

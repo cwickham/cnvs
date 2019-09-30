@@ -1,4 +1,4 @@
 library(testthat)
-library(gh)
+library(cnvs)
 
-test_check("gh")
+test_check("cnvs")

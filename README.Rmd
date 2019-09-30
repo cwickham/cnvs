@@ -1,13 +1,17 @@
+---
+output: github_document
+---
 
-```{r, setup, echo = FALSE, message = FALSE}
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
 knitr::opts_chunk$set(
+  collapse = TRUE,
   comment = "#>",
-  tidy = FALSE,
-  error = FALSE,
-  fig.width = 8,
-  fig.height = 8)
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
 ```
-
 # cnvs
 
 <!-- badges: start -->

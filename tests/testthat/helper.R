@@ -9,4 +9,5 @@
 ##   https://github.com/gaborcsardi/httrmock/issues/5
 ## * Reveal debugging info from httrmock.
 
-tt <- function() Sys.getenv("GH_TESTING", NA)
+tt <- function() Sys.getenv("CANVAS_TESTING", NA)
+

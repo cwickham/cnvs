@@ -4,7 +4,7 @@ skip_if_offline <- (function() {
   function() {
     if (is.na(offline)) {
       offline <<- tryCatch(
-        is.na(pingr::ping_port("github.com", count = 1, timeout = 1)),
+        is.na(pingr::ping_port("instructure.com", count = 1, timeout = 1)),
         error = function(e) TRUE
       )
     }
@@ -13,7 +13,7 @@ skip_if_offline <- (function() {
 })()
 
 skip_if_no_token <- function() {
-  if (is.na(Sys.getenv("GH_TESTING", NA_character_))) {
-    skip("No GitHub token")
+  if (is.na(Sys.getenv("CANVAS_TESTING", NA_character_))) {
+    skip("No Canvas token")
   }
 }

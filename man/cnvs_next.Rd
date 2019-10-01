@@ -7,16 +7,16 @@
 \alias{cnvs_last}
 \title{Get the next, previous, first or last page of results}
 \usage{
-cnvs_next(gh_response)
+cnvs_next(response)
 
-cnvs_prev(gh_response)
+cnvs_prev(response)
 
-cnvs_first(gh_response)
+cnvs_first(response)
 
-cnvs_last(gh_response)
+cnvs_last(response)
 }
 \arguments{
-\item{gh_response}{An object returned by a \code{cnvs()} call.}
+\item{response}{An object returned by a \code{cnvs()} call.}
 }
 \value{
 Answer from the API.
@@ -34,9 +34,9 @@ If the requested page does not exist, an error is thrown.
 }
 \examples{
 \dontrun{
-x <- gh("/users")
+x <- cnvs()
 sapply(x, "[[", "login")
-x2 <- gh_next(x)
+x2 <- cnvs_next(x)
 sapply(x2, "[[", "login")
 }
 }

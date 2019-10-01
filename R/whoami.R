@@ -3,11 +3,11 @@
 #' Reports name and Canvas login ID for the current authenticated user, the
 #' Canvas domain and the first bit of the token.
 #'
-#' Your canvas domain is the address of your organizations canvas site, e.g.
+#' Your canvas domain is the address of your organizations' canvas site, e.g.
 #' \code{https://oregonstate.instructure.com/}, provide this to \code{.api_url}.
 #'
 #' Get a personal access token for your Canvas domain from
-#' \code{\{CANVAS_DOMAIN\/profile/settings}}. The token itself is a string of 66
+#' \code{\{CANVAS_DOMAIN/profile/settings\}}. The token itself is a string of 66
 #' letters and digits. You can store it any way you like and provide explicitly
 #' via the \code{.token} argument to \code{\link{cnvs}()}.
 #'

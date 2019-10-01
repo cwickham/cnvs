@@ -62,7 +62,7 @@ gh_link <- function(gh_response, link) {
 #'
 #' If the requested page does not exist, an error is thrown.
 #'
-#' @param gh_response An object returned by a \code{cnvs()} call.
+#' @param response An object returned by a \code{cnvs()} call.
 #' @return Answer from the API.
 #'
 #' @seealso The `.limit` argument to [cnvs()] supports fetching more than
@@ -72,25 +72,25 @@ gh_link <- function(gh_response, link) {
 #' @export
 #' @examples
 #' \dontrun{
-#' x <- gh("/users")
+#' x <- cnvs()
 #' sapply(x, "[[", "login")
-#' x2 <- gh_next(x)
+#' x2 <- cnvs_next(x)
 #' sapply(x2, "[[", "login")
 #' }
 
-cnvs_next <- function(gh_response) gh_link(gh_response, "next")
+cnvs_next <- function(response) gh_link(response, "next")
 
 #' @name cnvs_next
 #' @export
 
-cnvs_prev <- function(gh_response) gh_link(gh_response, "prev")
+cnvs_prev <- function(response) gh_link(response, "prev")
 
 #' @name cnvs_next
 #' @export
 
-cnvs_first <- function(gh_response) gh_link(gh_response, "first")
+cnvs_first <- function(response) gh_link(response, "first")
 
 #' @name cnvs_next
 #' @export
 
-cnvs_last <- function(gh_response) gh_link(gh_response, "last")
+cnvs_last <- function(response) gh_link(response, "last")

@@ -63,13 +63,12 @@ NULL
 #'   (excepting \code{Authorization}, which is handled via
 #'   \code{.token}). This can be used to override or augment the
 #'   defaults, which are as follows: the \code{Accept} field defaults
-#'   to \code{"application/json"} and the
+#'   to \code{"application/json"}, the
 #'   \code{User-Agent} field defaults to
-#'   \code{"https://github.com/cwickham/cnvs"}. This can be used
-#'   to, e.g., provide a custom media type, in order to access a
-#'   preview feature of the API.
+#'   \code{"https://github.com/cwickham/cnvs"}, and the \code{Content-Type}
+#'   defaults to \code{"application/json"}.
 #'
-#' @return Answer from the API as a \code{gh_response} object, which is also a
+#' @return Answer from the API as a \code{cnvs_response} object, which is also a
 #'   \code{list}. Failed requests will generate an R error. Requests that
 #'   generate a raw response will return a raw vector.
 #'

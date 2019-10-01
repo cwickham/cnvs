@@ -171,7 +171,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
   id = new_module$id
 )
 #> {
-#>   "id": 3536938,
+#>   "id": 3537336,
 #>   "position": 1,
 #>   "name": "Module 1",
 #>   "unlock_at": {},
@@ -180,7 +180,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 #>   "prerequisite_module_ids": [],
 #>   "published": false,
 #>   "items_count": 0,
-#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3536938/items"
+#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3537336/items"
 #> }
 ```
 
@@ -190,6 +190,34 @@ test_modules <- cnvs("/api/v1/courses/:course_id/modules",
 vapply(test_modules, "[[", "", "name")
 #> [1] "Test module"
 ```
+
+### Uploading files
+
+To upload files use the `cnvs_upload()` function. You need to locate the
+endpoint for the required context of the file. E.g. To [upload a course
+file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file)
+the endpoint is:
+
+    POST /api/v1/courses/:course_id/files 
+
+Whereas to [upload a file as an
+submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file)
+the endpoint
+    is:
+
+    POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files
+
+Pass this endpoint to `cnvs_upload()` along with path to the file you
+wish to upload:
+
+``` r
+cnvs_upload("/api/v1/courses/:course_id/files",
+  path = "notes.pdf", course_id = "1732420", parent_folder_path = "handouts/")
+```
+
+Like `cnvs()` you can specify parameters in the endpoint, like
+`course_id`, or parameters in the body of the request like
+`parent_folder_path` as additional arguments.
 
 ### Pagination
 

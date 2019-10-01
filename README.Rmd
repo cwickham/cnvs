@@ -159,7 +159,25 @@ test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
 ```
+### Uploading files
 
+To upload files use the `cnvs_upload()` function.  You need to locate the endpoint for the required context of the file.  E.g. To [upload a course file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file) the endpoint is:
+```
+POST /api/v1/courses/:course_id/files 
+```
+Whereas to [upload a file as an submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file) the endpoint is:
+```
+POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files
+```
+
+Pass this endpoint to `cnvs_upload()` along with path to the file you wish to upload:
+```{r, eval = FALSE}
+cnvs_upload("/api/v1/courses/:course_id/files",
+  path = "notes.pdf", course_id = "1732420", parent_folder_path = "handouts/")
+```
+
+Like `cnvs()` you can specify parameters in the endpoint, like `course_id`, or parameters in the body of the request like `parent_folder_path` as additional arguments.
+ 
 ### Pagination
 
 Supply the `page` parameter to get subsequent pages:

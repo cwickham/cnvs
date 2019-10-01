@@ -1,10 +1,14 @@
 
 skip_if_offline <- (function() {
+  domain <- Sys.getenv("CANVAS_TESTING_DOMAIN", NA_character_)
+  if (is.na(domain) ){
+    skip("No Canvas domain")
+  }
   offline <- NA
   function() {
     if (is.na(offline)) {
       offline <<- tryCatch(
-        is.na(pingr::ping_port("instructure.com", count = 1, timeout = 1)),
+        is.na(pingr::ping_port(domain, count = 1, timeout = 1)),
         error = function(e) TRUE
       )
     }
@@ -13,7 +17,7 @@ skip_if_offline <- (function() {
 })()
 
 skip_if_no_token <- function() {
-  if (is.na(Sys.getenv("CANVAS_TESTING", NA_character_))) {
+  if (is.na(Sys.getenv("CANVAS_TESTING_TOKEN", NA_character_))) {
     skip("No Canvas token")
   }
 }

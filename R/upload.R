@@ -21,7 +21,7 @@
 #'
 #' ## Upload a course file to a specific folder
 #' cnvs_upload("POST /api/v1/courses/:course_id/files",
-#'   path = "notes.pdf", course_id = "1732420", parent_folder_path = "cnvs_files/")
+#'   path = "notes.pdf", course_id = "1732420", parent_folder_path = "cnvs_files")
 #' }
 cnvs_upload <- function(endpoint, path, ...){
   file <- cnvs(endpoint = endpoint, .method = "POST",
@@ -30,11 +30,10 @@ cnvs_upload <- function(endpoint, path, ...){
     ...)
 
   form <- httr::upload_file(path)
-  names(form) <- c("file", "type")
 
   req <- httr::POST(
     file$upload_url,
-    body = c(file$upload_params, form)
+    body = c(file$upload_params, file = list(form))
   )
 
   if((status_code(req) %/% 100 == 3)){

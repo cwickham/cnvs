@@ -73,7 +73,7 @@ usethis::edit_r_environ()
 Add lines like these substituting in your own domain and token:
 
     CANVAS_DOMAIN="https://canvas.instructure.com"
-    CANVAS_API_TOKEN= "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
+    CANVAS_API_TOKEN="mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
 
 Restart R and check by running `cnvs_whoami()` with no arguments:
 
@@ -105,7 +105,8 @@ vapply(my_courses, "[[", "", "name")
 #> [1] "ST499/599 Topics in Data Visualization"
 #> [2] "ST505 for ST511"                       
 #> [3] "ST511 Summer 2017"                     
-#> [4] "Stat 499/599, Data Programming in R"
+#> [4] "Stat 499/599, Data Programming in R"   
+#> [5] "Testing for cnvs"
 ```
 
 The JSON result sent by the API is converted to an R object.
@@ -114,35 +115,80 @@ If the end point itself has parameters, these can also be passed as
 extra arguments:
 
 ``` r
-vis_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 946353)
-vapply(vis_modules, "[[", "", "name")
-#> [1] "Start Here - Introduction"                        
-#> [2] "Week 1 - Bad graphics & Describing graphics"      
-#> [3] "Week 2 - Deconstructing and constructing graphics"
-#> [4] "Week 3 - Perception"                              
-#> [5] "Week 4 - Color and Scales"                        
-#> [6] "Week 5 - Practice"                                
-#> [7] "Week 6"
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
+#> [1] "Test module"
 ```
 
 ### POST, PATCH, PUT and DELETE requests
 
-**Not yet tested**
-
-POST, PATCH, PUT, and DELETE requests can be sent by including the HTTP
-verb before the endpoint, in the first argument. E.g. to create a
-repository:
+POST, PUT, and DELETE requests can be sent by including the HTTP verb
+before the endpoint, in the first argument. For example, to create a
+module:
 
 ``` r
-new_repo <- gh("POST /user/repos", name = "my-new-repo-for-gh-testing")
+new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
+  course_id = 1732420,  # set a parameter in the endpoint `:course_id`
+  module = list(        # a parameter sent in the body
+    name = "First module",
+    position = 1
+  )
+)
 ```
 
-and then delete it:
+``` r
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
+#> [1] "First module" "Test module"
+```
+
+Then update the name of the module:
 
 ``` r
-gh("DELETE /repos/:owner/:repo", owner = "gaborcsardi",
-   repo = "my-new-repo-for-gh-testing")
+update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
+  course_id = 1732420,
+  id = new_module$id,
+  module = list(
+    name = "Module 1"
+  )
+)
+```
+
+``` r
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
+#> [1] "Module 1"    "Test module"
+```
+
+Then, finally, delete the module:
+
+``` r
+cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
+  course_id = 1732420,
+  id = new_module$id
+)
+#> {
+#>   "id": 3536938,
+#>   "position": 1,
+#>   "name": "Module 1",
+#>   "unlock_at": {},
+#>   "require_sequential_progress": false,
+#>   "publish_final_grade": false,
+#>   "prerequisite_module_ids": [],
+#>   "published": false,
+#>   "items_count": 0,
+#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3536938/items"
+#> }
+```
+
+``` r
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
+#> [1] "Test module"
 ```
 
 ### Pagination

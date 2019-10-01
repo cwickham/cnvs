@@ -6,9 +6,10 @@
 \alias{cnvs-package}
 \title{Canvas LMS API}
 \usage{
-cnvs(endpoint, ..., per_page = NULL, .token = NULL, .destfile = NULL,
-  .overwrite = FALSE, .api_url = NULL, .method = "GET",
-  .limit = NULL, .send_headers = NULL)
+cnvs(endpoint = "/api/v1/courses", ..., per_page = NULL,
+  .token = NULL, .destfile = NULL, .overwrite = FALSE,
+  .api_url = NULL, .method = "GET", .limit = NULL,
+  .send_headers = NULL)
 }
 \arguments{
 \item{endpoint}{Canvas LMS API endpoint. Must be one of the following forms:

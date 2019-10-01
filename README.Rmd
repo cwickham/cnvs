@@ -68,7 +68,7 @@ usethis::edit_r_environ()
 Add lines like these substituting in your own domain and token:
 ```
 CANVAS_DOMAIN="https://canvas.instructure.com"
-CANVAS_API_TOKEN= "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
+CANVAS_API_TOKEN="mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
 
 ```
 
@@ -102,31 +102,63 @@ If the end point itself has parameters, these can also be passed
 as extra arguments:
 
 ```{r}
-vis_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 946353)
-vapply(vis_modules, "[[", "", "name")
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
 ```
 
 
 ### POST, PATCH, PUT and DELETE requests
 
-**Not yet tested**
-
-POST, PATCH, PUT, and DELETE requests can be sent by including the
-HTTP verb before the endpoint, in the first argument. E.g. to
-create a repository:
-
-```{r eval = FALSE}
-new_repo <- gh("POST /user/repos", name = "my-new-repo-for-gh-testing")
+POST, PUT, and DELETE requests can be sent by including the
+HTTP verb before the endpoint, in the first argument. For example, to
+create a module:
+```{r}
+new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
+  course_id = 1732420,  # set a parameter in the endpoint `:course_id`
+  module = list(        # a parameter sent in the body
+    name = "First module",
+    position = 1
+  )
+)
 ```
 
-and then delete it:
-
-```{r eval = FALSE}
-gh("DELETE /repos/:owner/:repo", owner = "gaborcsardi",
-   repo = "my-new-repo-for-gh-testing")
+```{r}
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
 ```
 
+Then update the name of the module:
+```{r}
+update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
+  course_id = 1732420,
+  id = new_module$id,
+  module = list(
+    name = "Module 1"
+  )
+)
+```
+
+```{r}
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
+```
+
+Then, finally, delete the module:
+```{r}
+cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
+  course_id = 1732420,
+  id = new_module$id
+)
+```
+
+```{r}
+test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+  course_id = 1732420)
+vapply(test_modules, "[[", "", "name")
+```
 
 ### Pagination
 

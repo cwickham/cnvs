@@ -35,7 +35,7 @@ Canvas domain and the first bit of the token.
 \dontrun{
 cnvs_whoami()
 
-## explicit token + use with GitHub Enterprise
+## explicit token + domain
 cnvs_whoami(.token = "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU",
           .api_url = "https://canvas.instructure.com")
 }

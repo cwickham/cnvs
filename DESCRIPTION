@@ -18,7 +18,8 @@ Suggests:
 Imports:
     ini,
     jsonlite,
-    httr
+    httr,
+    fs
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

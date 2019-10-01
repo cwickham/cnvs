@@ -1,6 +1,6 @@
 Package: cnvs
 Title: 'Canvas LMS' 'API'
-Version: 0.0.1
+Version: 0.0.1.9000
 Authors@R:
     c(person("Charlotte", "Wickham", email = "cwickham@gmai.com", role = c("cre", "ctb")),
       person("Gábor", "Csárdi", role = "aut", comment = "gh package"),
@@ -14,7 +14,9 @@ BugReports: https://github.com/cwickham/cnvs/issues
 Suggests:
     covr,
     pingr,
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
 Imports:
     ini,
     jsonlite,
@@ -23,3 +25,4 @@ Imports:
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
+VignetteBuilder: knitr

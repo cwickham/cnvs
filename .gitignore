@@ -3,3 +3,4 @@
 .RData
 /tags
 /tests/testthat/canvas-token.txt
+inst/doc

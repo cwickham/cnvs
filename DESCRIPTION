@@ -19,7 +19,8 @@ Suggests:
     rmarkdown,
     purrr,
     tibble,
-    lubridate
+    lubridate,
+    dplyr
 Imports:
     ini,
     jsonlite,

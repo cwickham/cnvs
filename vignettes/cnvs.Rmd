@@ -87,6 +87,7 @@ discussions[[1]]$title
 Functions for parsing the results are beyond the scope of cnvs, but you can parse them yourself using iteration functions from purrr.  For example, we could look at all the topic titles:
 ```{r}
 library(purrr)
+library(dplyr)
 discussions %>% 
   map_chr("title")
 ```

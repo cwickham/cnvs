@@ -3,4 +3,5 @@ pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
   cnvs-use-examples: cnvs-use-examples.html
+  cnvs: cnvs.html
 

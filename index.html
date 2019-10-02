@@ -44,6 +44,9 @@
   </a>
 </li>
 <li>
+  <a href="articles/cnvs.html">Get started</a>
+</li>
+<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -86,131 +89,111 @@
 <a href="#cnvs" class="anchor"></a>cnvs</h1></div>
 <!-- badges: start -->
 
-<blockquote>
-<p>Canvas LMS API</p>
-</blockquote>
-<p>Minimalistic client to access the <a href="https://canvas.instructure.com/doc/api/index.html">Canvas LMS API</a>.</p>
-<p>Heavily borrowing from the infrastructure of <a href="https://github.com/r-lib/gh">gh</a></p>
+<p>Minimalistic client to access the <a href="https://canvas.instructure.com/doc/api/index.html">Canvas LMS API</a>. Heavily borrowing from the infrastructure of <a href="https://github.com/r-lib/gh">gh</a></p>
+<div id="philospophy" class="section level2">
+<h2 class="hasAnchor">
+<a href="#philospophy" class="anchor"></a>Philospophy</h2>
+<p>cnvs is intentionally minimalist. To use it, you will need to become familiar with the <a href="https://canvas.instructure.com/doc/api/index.html">Canvas API documentation</a>. cnvs does no checking on the endpoints you provide, nor the objects you pass. This has the advantage that cnvs is not dependent on the specifics of the Canvas API. cnvs also does no parsing of response content, you will need to extract the desired information from the returned lists yourself.</p>
+<p>While cnvs does facilite the automation of repetitive tasks in Canvas from R, it still requires a fair bit of expertise from the user. The hope is to use it as a foundation for a higher level api package, that is more user-friendly.</p>
+</div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p>Install the package from GitHub as usual:</p>
+<p>Install the package from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># install.packages("remotes")</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">remotes<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/remotes/man/install_github.html">install_github</a></span>(<span class="st">"cwickham/cnvs"</span>)</a></code></pre></div>
-<div id="getting-started" class="section level3">
-<h3 class="hasAnchor">
-<a href="#getting-started" class="anchor"></a>Getting started</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(cnvs)</a></code></pre></div>
-<p>To use the the API to Canvas you need an access token. Access tokens are specific to your user account and Canvas domain. Your Canvas domain, <code>CANVAS_DOMAIN</code>, is the URL of your institution’s Canvas instance, e.g. <a href="https://oregonstate.instructure.com" class="uri">https://oregonstate.instructure.com</a> or, the instance provided by Instructure <a href="https://canvas.instructure.com/" class="uri">https://canvas.instructure.com/</a>.</p>
-<p>You can request an access token at: <code>{CANVAS_DOMAIN}/profile/settings</code>, under “Approved Integrations:”. Once generated, your token is only visible once so make sure you copy it.</p>
-<p>To verify your token and domain, pass them to the <code>.token()</code> and <code>.api_endpoint</code> arguments of <code><a href="reference/cnvs_whoami.html">cnvs_whoami()</a></code>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="reference/cnvs_whoami.html">cnvs_whoami</a></span>(<span class="dt">.token =</span> <span class="st">"mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"</span>,</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">           <span class="dt">.api_url =</span> <span class="st">"https://canvas.instructure.com"</span>)</a></code></pre></div>
-<p>The result should be successful and include your name and login id:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">  <span class="st">"name"</span><span class="op">:</span><span class="st"> "Charlotte Wickham"</span>,</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="st">"login_id"</span><span class="op">:</span><span class="st"> "cwickham@gmail.com"</span>,</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="st">"domain"</span><span class="op">:</span><span class="st"> "https://canvas.instructure.com"</span>,</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="st">"token"</span><span class="op">:</span><span class="st"> "mv..."</span></a></code></pre></div>
-<p>It is convenient to set environment variables to store your domain and token. cnvs looks for these in <code>CANVAS_DOMAIN</code> and <code>CANVAS_API_TOKEN</code> respectively. The easiest way to set them is to edit your <code>.Renviron</code> file:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># install.pacakges("usethis")</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">usethis<span class="op">::</span><span class="kw">edit_r_environ</span>()</a></code></pre></div>
-<p>Add lines like these substituting in your own domain and token:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">CANVAS_DOMAIN=<span class="st">"https://canvas.instructure.com"</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">CANVAS_API_TOKEN=<span class="st">"mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"</span></a></code></pre></div>
-<p>Restart R and check by running <code><a href="reference/cnvs_whoami.html">cnvs_whoami()</a></code> with no arguments:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="reference/cnvs_whoami.html">cnvs_whoami</a></span>()</a></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">  <span class="st">"name"</span><span class="op">:</span><span class="st"> "Charlotte Wickham"</span>,</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="st">"login_id"</span><span class="op">:</span><span class="st"> "cwickham@gmail.com"</span>,</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">  <span class="st">"domain"</span><span class="op">:</span><span class="st"> "https://canvas.instructure.com"</span>,</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">  <span class="st">"token"</span><span class="op">:</span><span class="st"> "mv..."</span></a></code></pre></div>
-</div>
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(cnvs)</a></code></pre></div>
 <p>Use the <code><a href="reference/cnvs.html">cnvs()</a></code> function to access all API endpoints. The endpoints are listed in the <a href="https://canvas.instructure.com/doc/api/index.html">documentation</a>.</p>
 <p>The first argument of <code><a href="reference/cnvs.html">cnvs()</a></code> is the endpoint. Note that the leading <code>/api/v1/</code> must be included as well, but this facilitates copy and pasting directly from the documentation. Parameters can be passed as extra arguments. E.g.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">my_courses &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses"</span>, <span class="dt">enrollment_type =</span> <span class="st">"teacher"</span>)</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(my_courses, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">#&gt; [1] "ST499/599 Topics in Data Visualization"</span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co">#&gt; [2] "ST505 for ST511"                       </span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt; [3] "ST511 Summer 2017"                     </span></a>
-<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">#&gt; [4] "Stat 499/599, Data Programming in R"   </span></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt; [5] "Testing for cnvs"</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">my_courses &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses"</span>, <span class="dt">enrollment_type =</span> <span class="st">"teacher"</span>)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(my_courses, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; [1] "ST499/599 Topics in Data Visualization"</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt; [2] "ST505 for ST511"                       </span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt; [3] "ST511 Summer 2017"                     </span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt; [4] "Stat 499/599, Data Programming in R"   </span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt; [5] "Testing for cnvs"</span></a></code></pre></div>
 <p>The JSON result sent by the API is converted to an R object.</p>
 <p>If the end point itself has parameters, these can also be passed as extra arguments:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt; [1] "Test module"</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co">#&gt; [1] "First module" "First module" "First module" "First module"</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt; [5] "First module" "Test module"  "First module"</span></a></code></pre></div>
 <div id="post-patch-put-and-delete-requests" class="section level3">
 <h3 class="hasAnchor">
 <a href="#post-patch-put-and-delete-requests" class="anchor"></a>POST, PATCH, PUT and DELETE requests</h3>
 <p>POST, PUT, and DELETE requests can be sent by including the HTTP verb before the endpoint, in the first argument. For example, to create a module:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">new_module &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"POST /api/v1/courses/:course_id/modules"</span>,</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>,  <span class="co"># set a parameter in the endpoint `:course_id`</span></a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">  <span class="dt">module =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(        <span class="co"># a parameter sent in the body</span></a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">    <span class="dt">name =</span> <span class="st">"First module"</span>,</a>
-<a class="sourceLine" id="cb11-5" data-line-number="5">    <span class="dt">position =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb11-6" data-line-number="6">  )</a>
-<a class="sourceLine" id="cb11-7" data-line-number="7">)</a></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
-<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co">#&gt; [1] "First module" "Test module"</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">new_module &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"POST /api/v1/courses/:course_id/modules"</span>,</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>,  <span class="co"># set a parameter in the endpoint `:course_id`</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">  <span class="dt">module =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(        <span class="co"># a parameter sent in the body</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">    <span class="dt">name =</span> <span class="st">"First module"</span>,</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">    <span class="dt">position =</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co">#&gt; [1] "First module" "First module" "First module" "First module"</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#&gt; [5] "First module" "First module" "Test module"  "First module"</span></a></code></pre></div>
 <p>Then update the name of the module:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">update_module &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"PUT /api/v1/courses/:course_id/modules/:id"</span>,</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>,</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">  <span class="dt">id =</span> new_module<span class="op">$</span>id,</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">  <span class="dt">module =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb13-5" data-line-number="5">    <span class="dt">name =</span> <span class="st">"Module 1"</span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6">  )</a>
-<a class="sourceLine" id="cb13-7" data-line-number="7">)</a></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4"><span class="co">#&gt; [1] "Module 1"    "Test module"</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">update_module &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"PUT /api/v1/courses/:course_id/modules/:id"</span>,</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>,</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">  <span class="dt">id =</span> new_module<span class="op">$</span>id,</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">  <span class="dt">module =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">    <span class="dt">name =</span> <span class="st">"Module 1"</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="co">#&gt; [1] "Module 1"     "First module" "First module" "First module"</span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt; [5] "First module" "First module" "Test module"  "First module"</span></a></code></pre></div>
 <p>Then, finally, delete the module:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"DELETE /api/v1/courses/:course_id/modules/:id"</span>,</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>,</a>
-<a class="sourceLine" id="cb15-3" data-line-number="3">  <span class="dt">id =</span> new_module<span class="op">$</span>id</a>
-<a class="sourceLine" id="cb15-4" data-line-number="4">)</a>
-<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; {</span></a>
-<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt;   "id": 3538850,</span></a>
-<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="co">#&gt;   "position": 1,</span></a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt;   "name": "Module 1",</span></a>
-<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co">#&gt;   "unlock_at": {},</span></a>
-<a class="sourceLine" id="cb15-10" data-line-number="10"><span class="co">#&gt;   "require_sequential_progress": false,</span></a>
-<a class="sourceLine" id="cb15-11" data-line-number="11"><span class="co">#&gt;   "publish_final_grade": false,</span></a>
-<a class="sourceLine" id="cb15-12" data-line-number="12"><span class="co">#&gt;   "prerequisite_module_ids": [],</span></a>
-<a class="sourceLine" id="cb15-13" data-line-number="13"><span class="co">#&gt;   "published": false,</span></a>
-<a class="sourceLine" id="cb15-14" data-line-number="14"><span class="co">#&gt;   "items_count": 0,</span></a>
-<a class="sourceLine" id="cb15-15" data-line-number="15"><span class="co">#&gt;   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3538850/items"</span></a>
-<a class="sourceLine" id="cb15-16" data-line-number="16"><span class="co">#&gt; }</span></a></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
-<a class="sourceLine" id="cb16-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
-<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
-<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#&gt; [1] "Test module"</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"DELETE /api/v1/courses/:course_id/modules/:id"</span>,</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>,</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">  <span class="dt">id =</span> new_module<span class="op">$</span>id</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">)</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt; {</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">#&gt;   "id": 3539337,</span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt;   "position": 1,</span></a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">#&gt;   "name": "Module 1",</span></a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co">#&gt;   "unlock_at": {},</span></a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt;   "require_sequential_progress": false,</span></a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt;   "publish_final_grade": false,</span></a>
+<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co">#&gt;   "prerequisite_module_ids": [],</span></a>
+<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co">#&gt;   "published": false,</span></a>
+<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co">#&gt;   "items_count": 0,</span></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt;   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3539337/items"</span></a>
+<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co">#&gt; }</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">test_modules &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses/:course_id/modules"</span>, </a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">  <span class="dt">course_id =</span> <span class="dv">1732420</span>)</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(test_modules, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt; [1] "First module" "First module" "First module" "First module"</span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt; [5] "First module" "Test module"  "First module"</span></a></code></pre></div>
 </div>
 <div id="uploading-files" class="section level3">
 <h3 class="hasAnchor">
 <a href="#uploading-files" class="anchor"></a>Uploading files</h3>
 <p>To upload files use the <code><a href="reference/cnvs_upload.html">cnvs_upload()</a></code> function. You need to locate the endpoint for the required context of the file. E.g. To <a href="https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file">upload a course file</a> the endpoint is:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">POST <span class="op">/</span>api<span class="op">/</span>v1<span class="op">/</span>courses<span class="op">/</span><span class="er">:</span>course_id<span class="op">/</span>files </a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">POST <span class="op">/</span>api<span class="op">/</span>v1<span class="op">/</span>courses<span class="op">/</span><span class="er">:</span>course_id<span class="op">/</span>files </a></code></pre></div>
 <p>Whereas to <a href="https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file">upload a file as an submission</a> the endpoint is:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">POST <span class="op">/</span>api<span class="op">/</span>v1<span class="op">/</span>courses<span class="op">/</span><span class="er">:</span>course_id<span class="op">/</span>assignments<span class="op">/</span><span class="er">:</span>assignment_id<span class="op">/</span>submissions<span class="op">/</span><span class="er">:</span>user_id<span class="op">/</span>files</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">POST <span class="op">/</span>api<span class="op">/</span>v1<span class="op">/</span>courses<span class="op">/</span><span class="er">:</span>course_id<span class="op">/</span>assignments<span class="op">/</span><span class="er">:</span>assignment_id<span class="op">/</span>submissions<span class="op">/</span><span class="er">:</span>user_id<span class="op">/</span>files</a></code></pre></div>
 <p>Pass this endpoint to <code><a href="reference/cnvs_upload.html">cnvs_upload()</a></code> along with path to the file you wish to upload:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="reference/cnvs_upload.html">cnvs_upload</a></span>(<span class="st">"/api/v1/courses/:course_id/files"</span>,</a>
-<a class="sourceLine" id="cb19-2" data-line-number="2">  <span class="dt">path =</span> <span class="st">"notes.pdf"</span>, <span class="dt">course_id =</span> <span class="st">"1732420"</span>, <span class="dt">parent_folder_path =</span> <span class="st">"handouts/"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="reference/cnvs_upload.html">cnvs_upload</a></span>(<span class="st">"/api/v1/courses/:course_id/files"</span>,</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">  <span class="dt">path =</span> <span class="st">"notes.pdf"</span>, <span class="dt">course_id =</span> <span class="st">"1732420"</span>, <span class="dt">parent_folder_path =</span> <span class="st">"handouts/"</span>)</a></code></pre></div>
 <p>Like <code><a href="reference/cnvs.html">cnvs()</a></code> you can specify parameters in the endpoint, like <code>course_id</code>, or parameters in the body of the request like <code>parent_folder_path</code> as additional arguments.</p>
 </div>
 <div id="pagination" class="section level3">
 <h3 class="hasAnchor">
 <a href="#pagination" class="anchor"></a>Pagination</h3>
 <p>Supply the <code>page</code> parameter to get subsequent pages:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">my_courses2 &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses"</span>, <span class="dt">enrollment_type =</span> <span class="st">"teacher"</span>,</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">  <span class="dt">page =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(my_courses2, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">my_courses2 &lt;-<span class="st"> </span><span class="kw"><a href="reference/cnvs.html">cnvs</a></span>(<span class="st">"/api/v1/courses"</span>, <span class="dt">enrollment_type =</span> <span class="st">"teacher"</span>,</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">  <span class="dt">page =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(my_courses2, <span class="st">"[["</span>, <span class="st">""</span>, <span class="st">"name"</span>)</a></code></pre></div>
 </div>
 </div>
 <div id="license" class="section level2">

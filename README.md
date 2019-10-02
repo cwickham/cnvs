@@ -7,6 +7,8 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![{Travis build
+status}](https://travis-ci.org/cwickham/cnvs.svg?branch=master)](https://travis-ci.org/cwickham/cnvs)
 <!-- badges: end -->
 
 > Canvas LMS API
@@ -171,7 +173,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
   id = new_module$id
 )
 #> {
-#>   "id": 3537336,
+#>   "id": 3538850,
 #>   "position": 1,
 #>   "name": "Module 1",
 #>   "unlock_at": {},
@@ -180,7 +182,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 #>   "prerequisite_module_ids": [],
 #>   "published": false,
 #>   "items_count": 0,
-#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3537336/items"
+#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3538850/items"
 #> }
 ```
 

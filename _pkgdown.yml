@@ -1,1 +1,22 @@
 destination: docs
+reference:
+  - title: "Queries"
+    desc: >
+      Functions for querying the Canvas LMS API
+    contents:
+      - cnvs
+      - cnvs_upload
+  - title: "Credentials"
+    contents:
+      - cnvs_whoami
+      - cnvs_token
+      - cnvs_domain
+  - title: "Pagination"
+    contents:
+      - cnvs_next
+      - cnvs_prev
+      - cnvs_first
+      - cnvs_last
+  - title: "Utilities"
+    contents:
+      - print.cnvs_response

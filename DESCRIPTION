@@ -9,7 +9,7 @@ Authors@R:
 Description: Minimal client to access the 'Canvas LMS' 'API'.
 License: MIT + file LICENSE
 LazyData: true
-URL: https://github.com/cwickham/cnvs#readme
+URL: https://cwickham.github.io/cnvs, https://github.com/cwickham/cnvs
 BugReports: https://github.com/cwickham/cnvs/issues
 Suggests:
     covr,

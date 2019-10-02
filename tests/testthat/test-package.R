@@ -3,6 +3,7 @@ context("test-package")
 test_that("GET requests work", {
   skip_if_offline()
   skip_if_no_token()
+  skip_on_cran()
 
   req <- cnvs(.token = tt(), .api_url = td())
   expect_s3_class(req, "cnvs_response")
@@ -12,6 +13,7 @@ test_that("GET requests work", {
 test_that("POST, PUT and DELETE requests work on module", {
   skip_if_offline()
   skip_if_no_token()
+  skip_on_cran()
 
   test_course <- 1732420
   create <- cnvs("POST /api/v1/courses/:course_id/modules",

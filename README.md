@@ -28,69 +28,11 @@ Install the package from GitHub as usual:
 remotes::install_github("cwickham/cnvs")
 ```
 
-### Getting started
+## Usage
 
 ``` r
 library(cnvs)
 ```
-
-To use the the API to Canvas you need an access token. Access tokens are
-specific to your user account and Canvas domain. Your Canvas domain,
-`CANVAS_DOMAIN`, is the URL of your institution’s Canvas instance,
-e.g. <https://oregonstate.instructure.com> or, the instance provided by
-Instructure <https://canvas.instructure.com/>.
-
-You can request an access token at: `{CANVAS_DOMAIN}/profile/settings`,
-under “Approved Integrations:”. Once generated, your token is only
-visible once so make sure you copy it.
-
-To verify your token and domain, pass them to the `.token()` and
-`.api_endpoint` arguments of
-`cnvs_whoami()`:
-
-``` r
-cnvs_whoami(.token = "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU",
-           .api_url = "https://canvas.instructure.com")
-```
-
-The result should be successful and include your name and login id:
-
-``` r
-  "name": "Charlotte Wickham",
-  "login_id": "cwickham@gmail.com",
-  "domain": "https://canvas.instructure.com",
-  "token": "mv..."
-```
-
-It is convenient to set environment variables to store your domain and
-token. cnvs looks for these in `CANVAS_DOMAIN` and `CANVAS_API_TOKEN`
-respectively. The easiest way to set them is to edit your `.Renviron`
-file:
-
-``` r
-# install.pacakges("usethis")
-usethis::edit_r_environ()
-```
-
-Add lines like these substituting in your own domain and token:
-
-    CANVAS_DOMAIN="https://canvas.instructure.com"
-    CANVAS_API_TOKEN="mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
-
-Restart R and check by running `cnvs_whoami()` with no arguments:
-
-``` r
-cnvs_whoami()
-```
-
-``` r
-  "name": "Charlotte Wickham",
-  "login_id": "cwickham@gmail.com",
-  "domain": "https://canvas.instructure.com",
-  "token": "mv..."
-```
-
-## Usage
 
 Use the `cnvs()` function to access all API endpoints. The endpoints are
 listed in the
@@ -120,7 +62,8 @@ extra arguments:
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
-#> [1] "Test module"
+#> [1] "First module" "First module" "First module" "Test module" 
+#> [5] "First module"
 ```
 
 ### POST, PATCH, PUT and DELETE requests
@@ -143,7 +86,8 @@ new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "Test module"
+#> [1] "First module" "First module" "First module" "First module"
+#> [5] "Test module"  "First module"
 ```
 
 Then update the name of the module:
@@ -162,7 +106,8 @@ update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
-#> [1] "Module 1"    "Test module"
+#> [1] "Module 1"     "First module" "First module" "First module"
+#> [5] "Test module"  "First module"
 ```
 
 Then, finally, delete the module:
@@ -173,7 +118,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
   id = new_module$id
 )
 #> {
-#>   "id": 3538850,
+#>   "id": 3539256,
 #>   "position": 1,
 #>   "name": "Module 1",
 #>   "unlock_at": {},
@@ -182,7 +127,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 #>   "prerequisite_module_ids": [],
 #>   "published": false,
 #>   "items_count": 0,
-#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3538850/items"
+#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3539256/items"
 #> }
 ```
 
@@ -190,7 +135,8 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
-#> [1] "Test module"
+#> [1] "First module" "First module" "First module" "Test module" 
+#> [5] "First module"
 ```
 
 ### Uploading files

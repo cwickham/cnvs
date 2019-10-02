@@ -2,7 +2,7 @@
 % Please edit documentation in R/print.R
 \name{print.cnvs_response}
 \alias{print.cnvs_response}
-\title{Print the result of a GitHub API call}
+\title{Print the result of a Canvas API call}
 \usage{
 \method{print}{cnvs_response}(x, ...)
 }
@@ -15,5 +15,5 @@
 The JSON result.
 }
 \description{
-Print the result of a GitHub API call
+Print the result of a Canvas API call
 }

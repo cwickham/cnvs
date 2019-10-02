@@ -1,5 +1,5 @@
 
-#' Print the result of a GitHub API call
+#' Print the result of a Canvas API call
 #'
 #' @param x The result object.
 #' @param ... Ignored.

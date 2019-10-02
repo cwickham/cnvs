@@ -16,7 +16,10 @@ Suggests:
     pingr,
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    purrr,
+    tibble,
+    lubridate
 Imports:
     ini,
     jsonlite,

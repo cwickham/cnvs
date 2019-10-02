@@ -15,7 +15,8 @@ My biggest complaint when using the Canvas API is the inordinate amount of point
 
 ```{r setup}
 library(cnvs)
-library(tidyverse)
+library(purrr)
+library(tibble)
 ```
 
 I'll demonstrate with one of my own courses:
@@ -25,24 +26,6 @@ test_course <- 1732420
 
 The code won't work for you because you don't have permissions on my course.  I recommend creating your own test course on https://canvas.instructure.com/, and substituting in your own course ID.
 
-# How do I find my course ID?
-
-One option is to visit your course in Canvas and examine the URL:
-```
-https://canvas.instructure.com/courses/1732420
-```
-Your course ID comes right after `/courses/`, e.g. 1732420 in this case.
-
-Alternatively, from R, the default `cvns()` endpoint is `/api/v1/courses' which will list all your courses:
-```{r}
-my_courses <- cnvs() 
-```
-
-Then you need to parse them and look for the `id` columns in the appropriate row:
-```{r}
-my_courses %>% 
-  map_dfr(compose(compact, as_tibble, .dir = "forward"))
-```
 
 # Create many assignments all at once 
 
@@ -79,7 +62,7 @@ one_hw <-
 
 To create them all, leverage `purrr::map2`
 ```{r}
-all_hws <- purrr::map2(hws$name, hws$due,  
+all_hws <- map2(hws$name, hws$due,  
   ~ cnvs("POST /api/v1/courses/:course_id/assignments",
       course_id = test_course,
       assignment = list(
@@ -95,7 +78,7 @@ all_hws <- purrr::map2(hws$name, hws$due,
 Delete them all if you want:
 ```{r}
 all_hws %>% 
-  purrr::map_chr("id") %>% 
+  map_chr("id") %>% 
   walk(~ cnvs("DELETE /api/v1/courses/:course_id/assignments/:id",
     id = .,
     course_id = test_course))
@@ -104,6 +87,25 @@ all_hws %>%
 # Uploading course documents
 
 **Problem**: You have a whole directory of files on your local computer you want to put in a course on Canvas, preferably maintaining your directory structure.
+
+```{r, include = FALSE, eval = FALSE}
+library(fs)
+dir_create("slides")
+dir_create("notes")
+file_create(path("slides", paste0("lecture_", 1:5, ".pptx")))
+file_create(path("notes", paste0("notes_", 1:5, ".pdf")))
+```
+
+Let's say I have some lectures and worksheets on my local computer:
+```{r, echo = FALSE}
+fs::dir_tree(regexp = "(notes.*)|(slides.*)")
+```
+
+```{r, eval = FALSE, include = FALSE}
+fs::dir_delete(c("notes", "slides"))
+```
+
+
 
 # Unpublish all files that match a pattern
 

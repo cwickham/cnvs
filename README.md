@@ -11,17 +11,29 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status}](https://travis-ci.org/cwickham/cnvs.svg?branch=master)](https://travis-ci.org/cwickham/cnvs)
 <!-- badges: end -->
 
-> Canvas LMS API
-
 Minimalistic client to access the [Canvas LMS
-API](https://canvas.instructure.com/doc/api/index.html).
+API](https://canvas.instructure.com/doc/api/index.html). Heavily
+borrowing from the infrastructure of [gh](https://github.com/r-lib/gh)
 
-Heavily borrowing from the infrastructure of
-[gh](https://github.com/r-lib/gh)
+## Philospophy
+
+cnvs is intentionally minimalist. To use it, you will need to become
+familiar with the [Canvas API
+documentation](https://canvas.instructure.com/doc/api/index.html). cnvs
+does no checking on the endpoints you provide, nor the objects you pass.
+This has the advantage that cnvs is not dependent on the specifics of
+the Canvas API. cnvs also does no parsing of response content, you will
+need to extract the desired information from the returned lists
+yourself.
+
+While cnvs does facilite the automation of repetitive tasks in Canvas
+from R, it still requires a fair bit of expertise from the user. The
+hope is to use it as a foundation for a higher level api package, that
+is more user-friendly.
 
 ## Installation
 
-Install the package from GitHub as usual:
+Install the package from GitHub:
 
 ``` r
 # install.packages("remotes")
@@ -62,8 +74,8 @@ extra arguments:
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module" "First module" "Test module" 
-#> [5] "First module"
+#> [1] "First module" "First module" "First module" "First module"
+#> [5] "First module" "Test module"  "First module"
 ```
 
 ### POST, PATCH, PUT and DELETE requests
@@ -87,7 +99,7 @@ test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
 #> [1] "First module" "First module" "First module" "First module"
-#> [5] "Test module"  "First module"
+#> [5] "First module" "First module" "Test module"  "First module"
 ```
 
 Then update the name of the module:
@@ -107,7 +119,7 @@ test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
 #> [1] "Module 1"     "First module" "First module" "First module"
-#> [5] "Test module"  "First module"
+#> [5] "First module" "First module" "Test module"  "First module"
 ```
 
 Then, finally, delete the module:
@@ -118,7 +130,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
   id = new_module$id
 )
 #> {
-#>   "id": 3539256,
+#>   "id": 3539337,
 #>   "position": 1,
 #>   "name": "Module 1",
 #>   "unlock_at": {},
@@ -127,7 +139,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 #>   "prerequisite_module_ids": [],
 #>   "published": false,
 #>   "items_count": 0,
-#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3539256/items"
+#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3539337/items"
 #> }
 ```
 
@@ -135,8 +147,8 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
   course_id = 1732420)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module" "First module" "Test module" 
-#> [5] "First module"
+#> [1] "First module" "First module" "First module" "First module"
+#> [5] "First module" "Test module"  "First module"
 ```
 
 ### Uploading files

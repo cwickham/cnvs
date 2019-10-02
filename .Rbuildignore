@@ -11,3 +11,6 @@
 ^tests/testthat/httrmock$
 ^\.github$
 ^vignettes/cnvs-use-examples\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

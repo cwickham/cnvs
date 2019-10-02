@@ -31,6 +31,6 @@ cnvs_upload("/api/v1/courses/:course_id/files",
 
 ## Upload a course file to a specific folder
 cnvs_upload("POST /api/v1/courses/:course_id/files",
-  path = "notes.pdf", course_id = "1732420", parent_folder_path = "cnvs_files/")
+  path = "notes.pdf", course_id = "1732420", parent_folder_path = "cnvs_files")
 }
 }

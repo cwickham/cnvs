@@ -4,15 +4,16 @@
 \alias{cnvs_upload}
 \title{Upload files to Canvas}
 \usage{
-cnvs_upload(endpoint, path, ...)
+cnvs_upload(path, endpoint = "/api/v1/courses/:course_id/files", ...)
 }
 \arguments{
-\item{endpoint}{Character string of the API endpoint for upload.  This depends on the required
-context of file. For example, uploading a file to a course uses the endpoint
-\code{"/api/v1/courses/:course_id/files"}.  Uploading a file as an assignment submission
-has the endpoint \code{"/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files"}}
-
 \item{path}{Path to file to upload}
+
+\item{endpoint}{Character string of the API endpoint for upload.  This depends on the required
+context of file. For example, the default,
+\code{"/api/v1/courses/:course_id/files"} uploads a file to a course.
+Uploading a file as an assignment submission
+has the endpoint \code{"/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files"}}
 
 \item{...}{Other parameters passed along to \code{\link{cnvs}()}.  Use these
 to specify endpoint parameters, e.g. \code{course_id}, parameters for the file
@@ -26,11 +27,10 @@ at \url{https://canvas.instructure.com/doc/api/file.file_uploads.html}.
 \examples{
 \dontrun{
 ## Upload a course file, ends up in "unfiled"
-cnvs_upload("/api/v1/courses/:course_id/files",
-  path = "notes.pdf", course_id = "1732420")
+cnvs_upload("notes.pdf", course_id = "1732420")
 
 ## Upload a course file to a specific folder
-cnvs_upload("POST /api/v1/courses/:course_id/files",
-  path = "notes.pdf", course_id = "1732420", parent_folder_path = "cnvs_files")
+cnvs_upload("notes.pdf",
+  course_id = "1732420", parent_folder_path = "cnvs_files")
 }
 }

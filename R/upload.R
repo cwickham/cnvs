@@ -4,8 +4,9 @@
 #' at \url{https://canvas.instructure.com/doc/api/file.file_uploads.html}.
 #'
 #' @param endpoint Character string of the API endpoint for upload.  This depends on the required
-#' context of file. For example, uploading a file to a course uses the endpoint
-#' \code{"/api/v1/courses/:course_id/files"}.  Uploading a file as an assignment submission
+#' context of file. For example, the default,
+#' \code{"/api/v1/courses/:course_id/files"} uploads a file to a course.
+#' Uploading a file as an assignment submission
 #' has the endpoint \code{"/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files"}
 #' @param path Path to file to upload
 #' @param ... Other parameters passed along to \code{\link{cnvs}()}.  Use these
@@ -16,14 +17,13 @@
 #' @examples
 #' \dontrun{
 #' ## Upload a course file, ends up in "unfiled"
-#' cnvs_upload("/api/v1/courses/:course_id/files",
-#'   path = "notes.pdf", course_id = "1732420")
+#' cnvs_upload("notes.pdf", course_id = "1732420")
 #'
 #' ## Upload a course file to a specific folder
-#' cnvs_upload("POST /api/v1/courses/:course_id/files",
-#'   path = "notes.pdf", course_id = "1732420", parent_folder_path = "cnvs_files")
+#' cnvs_upload("notes.pdf",
+#'   course_id = "1732420", parent_folder_path = "cnvs_files")
 #' }
-cnvs_upload <- function(endpoint, path, ...){
+cnvs_upload <- function(path, endpoint = "/api/v1/courses/:course_id/files", ...){
   file <- cnvs(endpoint = endpoint, .method = "POST",
     name = fs::path_file(path),
     size = fs::file_size(path),

@@ -42,5 +42,14 @@ cnvs_upload <- function(path, endpoint = "/api/v1/courses/:course_id/files", ...
     req <- gh_make_request(redirect_req)
   }
 
-  gh_process_response(req)
+  response <- gh_process_response(req)
+  if((status_code(req) %/% 100 == 2)){
+    url <- httr::parse_url(response$location)
+    # change path to download path
+    preview_path <- httr::parse_url(response$preview_url)$path
+    url$path <-  gsub("file_preview", "download", preview_path)
+    url$query <- NULL
+    message(httr::build_url(url))
+  }
+  invisible(response)
 }

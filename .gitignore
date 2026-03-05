@@ -1,6 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
+.Renviron
 /tags
 /tests/testthat/canvas-token.txt
 inst/doc

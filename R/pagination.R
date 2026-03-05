@@ -1,6 +1,5 @@
-
-extract_link <- function(gh_response, link) {
-  headers <- attr(gh_response, "response")
+extract_link <- function(cnvs_response, link) {
+  headers <- attr(cnvs_response, "response")
   links <- headers$link
   if (is.null(links)) {
     return(NA_character_)
@@ -24,32 +23,42 @@ extract_link <- function(gh_response, link) {
   }
 }
 
-gh_has <- function(gh_response, link) {
-  url <- extract_link(gh_response, link)
+cnvs_has <- function(cnvs_response, link) {
+  url <- extract_link(cnvs_response, link)
   !is.na(url)
 }
 
-gh_has_next <- function(gh_response) {
-  gh_has(gh_response, "next")
+cnvs_has_next <- function(cnvs_response) {
+  cnvs_has(cnvs_response, "next")
 }
 
-gh_link_request <- function(gh_response, link) {
+cnvs_link_request <- function(cnvs_response, link, .token, .send_headers) {
+  stopifnot(inherits(cnvs_response, "cnvs_response"))
 
-  stopifnot(inherits(gh_response, "gh_response"))
+  url <- extract_link(cnvs_response, link)
+  if (is.na(url)) cli::cli_abort("No {link} page")
 
-  url <- extract_link(gh_response, link)
-  if (is.na(url)) throw(new_error("No ", link, " page"))
-
-  list(method = attr(gh_response, "method"),
-       url = url,
-       headers = attr(gh_response, ".send_headers"))
-
+  req <- attr(cnvs_response, "request")
+  req$url <- url
+  req$token <- .token
+  req$send_headers <- .send_headers
+  req <- cnvs_set_headers(req)
+  req
 }
 
-gh_link <- function(gh_response, link) {
-  req <- gh_link_request(gh_response, link)
-  raw <- gh_make_request(req)
-  gh_process_response(raw)
+cnvs_link <- function(cnvs_response, link, .token, .send_headers) {
+  req <- cnvs_link_request(cnvs_response, link, .token, .send_headers)
+  raw <- cnvs_make_request(req)
+  cnvs_process_response(raw, req)
+}
+
+cnvs_extract_pages <- function(cnvs_response) {
+  last <- extract_link(cnvs_response, "last")
+  if (!is.na(last)) {
+    as.integer(httr2::url_parse(last)$query$page)
+  } else {
+    NA
+  }
 }
 
 #' Get the next, previous, first or last page of results
@@ -62,7 +71,8 @@ gh_link <- function(gh_response, link) {
 #'
 #' If the requested page does not exist, an error is thrown.
 #'
-#' @param response An object returned by a \code{cnvs()} call.
+#' @param cnvs_response An object returned by a [cnvs()] call.
+#' @inheritParams cnvs
 #' @return Answer from the API.
 #'
 #' @seealso The `.limit` argument to [cnvs()] supports fetching more than
@@ -72,25 +82,30 @@ gh_link <- function(gh_response, link) {
 #' @export
 #' @examples
 #' \dontrun{
-#' x <- cnvs()
-#' sapply(x, "[[", "login")
+#' x <- cnvs("/api/v1/courses")
 #' x2 <- cnvs_next(x)
-#' sapply(x2, "[[", "login")
 #' }
-
-cnvs_next <- function(response) gh_link(response, "next")
-
-#' @name cnvs_next
-#' @export
-
-cnvs_prev <- function(response) gh_link(response, "prev")
+cnvs_next <- function(cnvs_response, .token = NULL, .send_headers = NULL) {
+  cnvs_link(cnvs_response, "next", .token = .token, .send_headers = .send_headers)
+}
 
 #' @name cnvs_next
 #' @export
 
-cnvs_first <- function(response) gh_link(response, "first")
+cnvs_prev <- function(cnvs_response, .token = NULL, .send_headers = NULL) {
+  cnvs_link(cnvs_response, "prev", .token = .token, .send_headers = .send_headers)
+}
 
 #' @name cnvs_next
 #' @export
 
-cnvs_last <- function(response) gh_link(response, "last")
+cnvs_first <- function(cnvs_response, .token = NULL, .send_headers = NULL) {
+  cnvs_link(cnvs_response, "first", .token = .token, .send_headers = .send_headers)
+}
+
+#' @name cnvs_next
+#' @export
+
+cnvs_last <- function(cnvs_response, .token = NULL, .send_headers = NULL) {
+  cnvs_link(cnvs_response, "last", .token = .token, .send_headers = .send_headers)
+}

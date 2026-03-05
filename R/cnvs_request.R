@@ -1,0 +1,223 @@
+## Headers to send with each API request
+default_send_headers <- c("User-Agent" = "https://github.com/cwickham/cnvs")
+
+cnvs_build_request <- function(
+  endpoint = "/user",
+  params = list(),
+  token = NULL,
+  destfile = NULL,
+  overwrite = NULL,
+  accept = NULL,
+  send_headers = NULL,
+  max_wait = 10,
+  max_rate = NULL,
+  api_url = NULL,
+  method = "GET"
+) {
+  working <- list(
+    method = method,
+    url = character(),
+    headers = NULL,
+    query = NULL,
+    body = NULL,
+    endpoint = endpoint,
+    params = params,
+    token = token,
+    accept = c(Accept = accept),
+    send_headers = send_headers,
+    api_url = api_url,
+    dest = destfile,
+    overwrite = overwrite,
+    max_wait = max_wait,
+    max_rate = max_rate
+  )
+
+  working <- cnvs_set_verb(working)
+  working <- cnvs_set_endpoint(working)
+  working <- cnvs_set_query(working)
+  working <- cnvs_set_body(working)
+  working <- cnvs_set_url(working)
+  working <- cnvs_set_headers(working)
+  working <- cnvs_set_temp_destfile(working)
+  working[c(
+    "method",
+    "url",
+    "headers",
+    "query",
+    "body",
+    "dest",
+    "desttmp",
+    "max_wait",
+    "max_rate"
+  )]
+}
+
+
+## cnvs_set_*(x)
+## x = a list in which we build up an httr2 request
+## x goes in, x comes out, possibly modified
+
+cnvs_set_verb <- function(x) {
+  if (!nzchar(x$endpoint)) {
+    return(x)
+  }
+
+  # No method defined, so use default
+  if (grepl("^/", x$endpoint) || grepl("^http", x$endpoint)) {
+    return(x)
+  }
+
+  # Method can be lower-case (e.g. copy-pasting from API docs in Firefox)
+  method <- gsub("^([^/ ]+)\\s+.*$", "\\1", x$endpoint)
+  x$endpoint <- gsub(sprintf("^%s+ ", method), "", x$endpoint)
+  # Now switch method to upper-case
+  x$method <- toupper(method)
+  x
+}
+
+cnvs_set_endpoint <- function(x) {
+  params <- x$params
+  if (
+    !is_template(x$endpoint) || length(params) == 0L || has_no_names(params)
+  ) {
+    return(x)
+  }
+
+  named_params <- which(has_name(params))
+  done <- rep_len(FALSE, length(params))
+  endpoint <- endpoint2 <- x$endpoint
+
+  for (i in named_params) {
+    endpoint2 <- expand_variable(
+      varname = names(params)[i],
+      value = params[[i]][1],
+      template = endpoint
+    )
+    if (is.na(endpoint2)) {
+      cli::cli_abort(
+        "Named NA parameters are not allowed: {names(params)[i]}"
+      )
+    }
+    if (endpoint2 != endpoint) {
+      endpoint <- endpoint2
+      done[i] <- TRUE
+    }
+    if (!is_template(endpoint)) {
+      break
+    }
+  }
+
+  x$endpoint <- endpoint
+  x$params <- x$params[!done]
+  x$params <- cleanse_names(x$params)
+  x
+}
+
+cnvs_set_query <- function(x) {
+  params <- x$params
+  if (x$method != "GET" || length(params) == 0L) {
+    return(x)
+  }
+  stopifnot(all(has_name(params)))
+  x$query <- params
+  x$params <- NULL
+  x
+}
+
+cnvs_set_body <- function(x) {
+  if (length(x$params) == 0L) {
+    return(x)
+  }
+  if (x$method == "GET") {
+    warning("This is a 'GET' request and unnamed parameters are being ignored.")
+    return(x)
+  }
+  if (length(x$params) == 1 && is.raw(x$params[[1]])) {
+    x$body <- x$params[[1]]
+  } else {
+    x$body <- x$params
+  }
+  x
+}
+
+cnvs_set_url <- function(x) {
+  if (grepl("^https?://", x$endpoint)) {
+    # Full URL provided
+    x$url <- URLencode(x$endpoint)
+    x$api_url <- get_baseurl(x$url)
+  } else {
+    # Just a path - prepend the Canvas domain
+    x$api_url <- x$api_url %||% cnvs_domain()
+    x$url <- URLencode(paste0(x$api_url, x$endpoint))
+  }
+  x
+}
+
+cnvs_set_temp_destfile <- function(working) {
+  working$desttmp <- if (is.null(working$dest)) {
+    NULL
+  } else {
+    paste0(working$dest, "-", basename(tempfile("")), ".cnvs-tmp")
+  }
+  working
+}
+
+get_baseurl <- function(url) {
+  if (!any(grepl("^https?://", url))) {
+    cli::cli_abort("Only works with HTTP(S) protocols")
+  }
+  prot <- sub("^(https?://).*$", "\\1", url)
+
+  rest <- sub("^https?://(.*)$", "\\1", url)
+  host <- sub("/.*$", "", rest)
+ paste0(prot, host)
+}
+
+cnvs_set_headers <- function(x) {
+  auth <- cnvs_auth(x$token %||% cnvs_token())
+  send_headers <- cnvs_send_headers(x$accept, x$send_headers)
+  x$headers <- c(send_headers, auth)
+  x
+}
+
+cnvs_send_headers <- function(accept_header = NULL, headers = NULL) {
+  modify_vector(
+    modify_vector(default_send_headers, accept_header),
+    headers
+  )
+}
+
+# helpers ----
+# https://tools.ietf.org/html/rfc6570
+# we support what the RFC calls "Level 1 templates", which only require
+# simple string expansion of a placeholder consisting of [A-Za-z0-9_]
+is_template <- function(x) {
+  is_colon_template(x) || is_uri_template(x)
+}
+
+is_colon_template <- function(x) grepl(":", x)
+
+is_uri_template <- function(x) grepl("[{]\\w+?[}]", x)
+
+template_type <- function(x) {
+  if (is_uri_template(x)) {
+    return("uri")
+  }
+  if (is_colon_template(x)) {
+    return("colon")
+  }
+}
+
+expand_variable <- function(varname, value, template) {
+  type <- template_type(template)
+  if (is.null(type)) {
+    return(template)
+  }
+  pattern <- switch(
+    type,
+    uri = paste0("[{]", varname, "[}]"),
+    colon = paste0(":", varname, "\\b"),
+    stop("Internal error: unrecognized template type")
+  )
+  gsub(pattern, value, template)
+}

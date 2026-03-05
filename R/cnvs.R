@@ -1,0 +1,354 @@
+#' Query the Canvas LMS API
+#'
+#' This is an extremely minimal client. You need to know the API
+#' to be able to use this client. All this function does is:
+#' * Try to substitute each listed parameter into `endpoint`, using the
+#'   `{parameter}` or `:parameter` notation.
+#' * If a GET request (the default), then add all other listed parameters
+#'   as query parameters.
+#' * If not a GET request, then send the other parameters in the request
+#'   body, as JSON.
+#' * Convert the response to an R list using [jsonlite::fromJSON()].
+#'
+#' @param endpoint Canvas API endpoint. Must be one of the following forms:
+#'    * `METHOD path`, e.g. `GET /api/v1/courses`,
+#'    * `path`, e.g. `/api/v1/courses`,
+#'    * `METHOD url`, e.g. `GET https://canvas.instructure.com/api/v1/courses`,
+#'    * `url`, e.g. `https://canvas.instructure.com/api/v1/courses`.
+#'
+#'    If the method is not supplied, will use `.method`, which defaults
+#'    to `"GET"`.
+#' @param ... Name-value pairs giving API parameters. Will be matched into
+#'   `endpoint` placeholders, sent as query parameters in GET requests, and as a
+#'   JSON body of POST requests. If there is only one unnamed parameter, and it
+#'   is a raw vector, then it will not be JSON encoded, but sent as raw data, as
+#'   is. This can be used for example to add assets to releases. Named `NULL`
+#'   values are silently dropped. For GET requests, named `NA` values trigger an
+#'   error. For other methods, named `NA` values are included in the body of the
+#'   request, as JSON `null`.
+#' @param per_page,.per_page Number of items to return per page. If omitted,
+#'   will be substituted by `max(.limit, 100)` if `.limit` is set,
+#'   otherwise determined by the API (never greater than 100).
+#' @param .destfile Path to write response to disk. If `NULL` (default),
+#'   response will be processed and returned as an object. If path is given,
+#'   response will be written to disk in the form sent. cnvs writes the
+#'   response to a temporary file, and renames that file to `.destfile`
+#'   after the request was successful. The name of the temporary file is
+#'   created by adding a `-<random>.cnvs-tmp` suffix to it, where `<random>`
+#'   is an ASCII string with random characters. cnvs removes the temporary
+#'   file on error.
+#' @param .overwrite If `.destfile` is provided, whether to overwrite an
+#'   existing file.  Defaults to `FALSE`. If an error happens the original
+#'   file is kept.
+#' @param .token Authentication token. Defaults to [cnvs_token()].
+#' @param .api_url Canvas domain URL. Used if `endpoint` just contains a path.
+#'   Defaults to `CANVAS_DOMAIN` environment variable if set.
+#' @param .method HTTP method to use if not explicitly supplied in the
+#'    `endpoint`.
+#' @param .limit Number of records to return. This can be used
+#'   instead of manual pagination. By default it is `NULL`,
+#'   which means that the defaults of the Canvas API are used.
+#'   You can set it to a number to request more (or less)
+#'   records, and also to `Inf` to request all records.
+#'   Note, that if you request many records, then multiple Canvas
+#'   API calls are used to get them, and this can take a potentially
+#'   long time.
+#' @param .accept The value of the `Accept` HTTP header. Defaults to
+#'   `"application/json"`. If `Accept` is given in `.send_headers`, then
+#'   that will be used.
+#' @param .send_headers Named character vector of header field values
+#'   (except `Authorization`, which is handled via `.token`). This can be
+#'   used to override or augment the default `User-Agent` header:
+#'   `"https://github.com/cwickham/cnvs"`.
+#' @param .progress Whether to show a progress indicator for calls that
+#'   need more than one HTTP request.
+#' @param .params Additional list of parameters to append to `...`.
+#'   It is easier to use this than `...` if you have your parameters in
+#'   a list already.
+#' @param .max_wait Maximum number of seconds to wait if rate limited.
+#'   Defaults to 10 minutes.
+#' @param .max_rate Maximum request rate in requests per second. Set
+#'   this to automatically throttle requests.
+#' @return Answer from the API as a `cnvs_response` object, which is also a
+#'   `list`. Failed requests will generate an R error. Requests that
+#'   generate a raw response will return a raw vector.
+#'
+#' @export
+#' @seealso [cnvs_whoami()] for details on Canvas API token management,
+#'   [cnvs_upload()] for uploading files to Canvas.
+#' @examples
+#' \dontrun{
+#' ## List your courses
+#' cnvs("/api/v1/courses")
+#'
+#' ## Get a specific course
+#' cnvs("/api/v1/courses/{course_id}", course_id = 123456)
+#'
+#' ## Same thing with :param syntax
+#' cnvs("/api/v1/courses/:course_id", course_id = 123456)
+#'
+#' ## List assignments for a course
+#' cnvs("/api/v1/courses/{course_id}/assignments", course_id = 123456)
+#'
+#' ## Create an assignment
+#' cnvs(
+#'   "POST /api/v1/courses/{course_id}/assignments",
+#'   course_id = 123456,
+#'   assignment = list(
+#'     name = "Homework 1",
+#'     points_possible = 10
+#'   )
+#' )
+#'
+#' ## Automatic pagination - get all students
+#' students <- cnvs(
+#'   "/api/v1/courses/{course_id}/users",
+#'   course_id = 123456,
+#'   enrollment_type = "student",
+#'   .limit = Inf
+#' )
+#' }
+#'
+#'
+cnvs <- function(
+
+  endpoint,
+  ...,
+  per_page = NULL,
+  .per_page = NULL,
+  .token = NULL,
+  .destfile = NULL,
+  .overwrite = FALSE,
+  .api_url = NULL,
+  .method = "GET",
+  .limit = NULL,
+  .accept = "application/json",
+  .send_headers = NULL,
+  .progress = TRUE,
+  .params = list(),
+  .max_wait = 600,
+  .max_rate = NULL
+) {
+  params <- .parse_params(..., .params = .params)
+
+  check_exclusive(per_page, .per_page, .require = FALSE)
+  per_page <- per_page %||% .per_page
+  if (is.null(per_page) && !is.null(.limit)) {
+    per_page <- max(min(.limit, 100), 1)
+  }
+  if (!is.null(per_page)) {
+    params <- c(params, list(per_page = per_page))
+  }
+
+  req <- cnvs_build_request(
+    endpoint = endpoint,
+    params = params,
+    token = .token,
+    destfile = .destfile,
+    overwrite = .overwrite,
+    accept = .accept,
+    send_headers = .send_headers,
+    max_wait = .max_wait,
+    max_rate = .max_rate,
+    api_url = .api_url,
+    method = .method
+  )
+
+  if (req$method == "GET") check_named_nas(params)
+
+  raw <- cnvs_make_request(req)
+  res <- cnvs_process_response(raw, req)
+  len <- cnvs_response_length(res)
+
+  if (.progress && !is.null(.limit)) {
+    pages <- min(cnvs_extract_pages(res), ceiling(.limit / per_page))
+    cli::cli_progress_bar("Running cnvs query", total = pages)
+    cli::cli_progress_update() # already done one
+  }
+
+  while (!is.null(.limit) && len < .limit && cnvs_has_next(res)) {
+    res2 <- cnvs_next(res, .token = .token, .send_headers = .send_headers)
+    len <- len + cnvs_response_length(res2)
+    if (.progress) cli::cli_progress_update()
+
+    if (!is.null(names(res2)) && identical(names(res), names(res2))) {
+      res3 <- mapply(
+        # Handle named array case
+        function(x, y, n) {
+          # e.g. GET /search/repositories
+          z <- c(x, y)
+          atm <- is.atomic(z)
+          if (atm && n %in% c("total_count", "incomplete_results")) {
+            y
+          } else if (atm) {
+            unique(z)
+          } else {
+            z
+          }
+        },
+        res,
+        res2,
+        names(res),
+        SIMPLIFY = FALSE
+      )
+    } else {
+      # Handle unnamed array case
+      res3 <- c(res, res2) # e.g. GET /orgs/:org/invitations
+    }
+
+    attributes(res3) <- attributes(res2)
+    res <- res3
+  }
+
+  if (.progress) cli::cli_progress_done()
+
+  # We only subset for a non-named response.
+  if (
+    !is.null(.limit) &&
+      len > .limit &&
+      !"total_count" %in% names(res) &&
+      length(res) == len
+  ) {
+    res_attr <- attributes(res)
+    res <- res[seq_len(.limit)]
+    attributes(res) <- res_attr
+  }
+
+  res
+}
+
+cnvs_response_length <- function(res) {
+  if (
+    !is.null(names(res)) && length(res) > 1 && names(res)[1] == "total_count"
+  ) {
+    # Ignore total_count, incomplete_results, repository_selection
+    # and take the first list element to get the length
+    lst <- vapply(res, is.list, logical(1))
+    nm <- setdiff(
+      names(res),
+      c("total_count", "incomplete_results", "repository_selection")
+    )
+    tgt <- which(lst[nm])[1]
+    if (is.na(tgt)) length(res) else length(res[[nm[tgt]]])
+  } else {
+    length(res)
+  }
+}
+
+cnvs_make_request <- function(x, error_call = caller_env()) {
+  if (!x$method %in% c("GET", "POST", "PATCH", "PUT", "DELETE")) {
+    cli::cli_abort("Unknown HTTP verb: {.val {x$method}}")
+  }
+
+  req <- httr2::request(x$url)
+  req <- httr2::req_method(req, x$method)
+  req <- httr2::req_url_query(req, !!!x$query)
+
+  if (!is.null((x$body))) {
+    if (is.raw(x$body)) {
+      req <- httr2::req_body_raw(req, x$body)
+    } else {
+      req <- httr2::req_body_json(req, x$body, null = "list", digits = 4)
+    }
+  }
+  req <- httr2::req_headers(req, !!!x$headers)
+
+  # Reduce connection timeout from curl's 10s default to 5s
+  req <- httr2::req_options(req, connecttimeout_ms = 5000)
+  if (Sys.getenv("CNVS_FORCE_HTTP_1_1") == "true") {
+    req <- httr2::req_options(req, http_version = 2)
+  }
+
+  if (!isFALSE(getOption("cnvs_cache"))) {
+    req <- httr2::req_cache(
+      req,
+      max_size = 100 * 1024 * 1024, # 100 MB
+      path = tools::R_user_dir("cnvs", "cache")
+    )
+  }
+
+  if (!is_testing()) {
+    req <- httr2::req_retry(
+      req,
+      max_tries = 3,
+      is_transient = function(resp) canvas_is_transient(resp, x$max_wait),
+      after = canvas_after
+    )
+  }
+
+  if (!is.null(x$max_rate)) {
+    req <- httr2::req_throttle(req, x$max_rate)
+  }
+
+  # allow custom handling with cnvs_error
+  req <- httr2::req_error(req, is_error = function(resp) FALSE)
+
+  resp <- httr2::req_perform(req, path = x$desttmp)
+  if (httr2::resp_status(resp) >= 400) {
+    cnvs_error(resp, cnvs_req = x, error_call = error_call)
+  }
+
+  resp
+}
+
+# Canvas API error handling
+cnvs_error <- function(response, cnvs_req, error_call = caller_env()) {
+  heads <- httr2::resp_headers(response)
+  res <- httr2::resp_body_json(response)
+  status <- httr2::resp_status(response)
+  if (!is.null(cnvs_req$desttmp)) unlink(cnvs_req$desttmp)
+
+  msg <- "Canvas API error ({status}): {heads$status %||% ''} {res$message}"
+
+  if (status == 404) {
+    msg <- c(msg, x = c("URL not found: {.url {response$url}}"))
+  }
+
+  doc_url <- res$documentation_url
+  if (!is.null(doc_url)) {
+    msg <- c(msg, c("i" = "Read more at {.url {doc_url}}"))
+  }
+
+  errors <- res$errors
+  if (!is.null(errors)) {
+    errors <- as.data.frame(do.call(rbind, errors))
+    nms <- c("resource", "field", "code", "message")
+    nms <- nms[nms %in% names(errors)]
+    msg <- c(
+      msg,
+      capture.output(print(errors[nms], row.names = FALSE))
+    )
+  }
+
+  cli::cli_abort(
+    msg,
+    class = c("canvas_error", paste0("http_error_", status)),
+    call = error_call,
+    response_headers = heads,
+    response_content = res
+  )
+}
+
+
+# Canvas rate limiting - retry on 403 when rate limited
+canvas_is_transient <- function(resp, max_wait) {
+  if (httr2::resp_status(resp) != 403) {
+    return(FALSE)
+  }
+  if (!identical(httr2::resp_header(resp, "x-ratelimit-remaining"), "0")) {
+    return(FALSE)
+  }
+
+  time <- httr2::resp_header(resp, "x-ratelimit-reset")
+  if (is.null(time)) {
+    return(FALSE)
+  }
+
+  time <- as.numeric(time)
+  minutes_to_wait <- (time - unclass(Sys.time()))
+  minutes_to_wait <= max_wait
+}
+canvas_after <- function(resp) {
+  time <- as.numeric(httr2::resp_header(resp, "x-ratelimit-reset"))
+  time - unclass(Sys.time())
+}

@@ -9,16 +9,16 @@ cnvs_upload(path, endpoint = "/api/v1/courses/:course_id/files", ...)
 \arguments{
 \item{path}{Path to file to upload}
 
-\item{endpoint}{Character string of the API endpoint for upload.  This depends on the required
+\item{endpoint}{Character string of the API endpoint for upload. This depends on the required
 context of file. For example, the default,
 \code{"/api/v1/courses/:course_id/files"} uploads a file to a course.
 Uploading a file as an assignment submission
 has the endpoint \code{"/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files"}}
 
-\item{...}{Other parameters passed along to \code{\link{cnvs}()}.  Use these
+\item{...}{Other parameters passed along to \code{\link[=cnvs]{cnvs()}}. Use these
 to specify endpoint parameters, e.g. \code{course_id}, parameters for the file
-upload, e.g. \code{parent_folder_path}, or other parameters to \code{\link{cnvs}()}
-like \code{.token} or \code{.api_endpoint}.}
+upload, e.g. \code{parent_folder_path}, or other parameters to \code{\link[=cnvs]{cnvs()}}
+like \code{.token} or \code{.api_url}.}
 }
 \description{
 Upload a local file to a location on Canvas LMS. Read more about possible parameters

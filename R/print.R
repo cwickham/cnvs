@@ -1,4 +1,3 @@
-
 #' Print the result of a Canvas API call
 #'
 #' @param x The result object.
@@ -11,11 +10,9 @@
 
 print.cnvs_response <- function(x, ...) {
   if (inherits(x, c("raw", "path"))) {
-    attr(x, c("method")) <- NULL
-    attr(x, c("response")) <- NULL
-    attr(x, ".send_headers") <- NULL
+    attributes(x) <- list(class = class(x))
     print.default(x)
   } else {
-    print(toJSON(unclass(x), pretty = TRUE, auto_unbox = TRUE))
+    print(toJSON(unclass(x), pretty = TRUE, auto_unbox = TRUE, force = TRUE))
   }
 }

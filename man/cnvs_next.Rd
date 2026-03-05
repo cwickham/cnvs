@@ -7,16 +7,23 @@
 \alias{cnvs_last}
 \title{Get the next, previous, first or last page of results}
 \usage{
-cnvs_next(response)
+cnvs_next(cnvs_response, .token = NULL, .send_headers = NULL)
 
-cnvs_prev(response)
+cnvs_prev(cnvs_response, .token = NULL, .send_headers = NULL)
 
-cnvs_first(response)
+cnvs_first(cnvs_response, .token = NULL, .send_headers = NULL)
 
-cnvs_last(response)
+cnvs_last(cnvs_response, .token = NULL, .send_headers = NULL)
 }
 \arguments{
-\item{response}{An object returned by a \code{cnvs()} call.}
+\item{cnvs_response}{An object returned by a \code{\link[=cnvs]{cnvs()}} call.}
+
+\item{.token}{Authentication token. Defaults to \code{\link[=cnvs_token]{cnvs_token()}}.}
+
+\item{.send_headers}{Named character vector of header field values
+(except \code{Authorization}, which is handled via \code{.token}). This can be
+used to override or augment the default \code{User-Agent} header:
+\code{"https://github.com/cwickham/cnvs"}.}
 }
 \value{
 Answer from the API.
@@ -34,10 +41,8 @@ If the requested page does not exist, an error is thrown.
 }
 \examples{
 \dontrun{
-x <- cnvs()
-sapply(x, "[[", "login")
+x <- cnvs("/api/v1/courses")
 x2 <- cnvs_next(x)
-sapply(x2, "[[", "login")
 }
 }
 \seealso{

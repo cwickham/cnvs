@@ -1,32 +1,38 @@
 Package: cnvs
 Title: 'Canvas LMS' 'API'
-Version: 0.0.1.9000
+Version: 0.1.0.9000
 Authors@R:
-    c(person("Charlotte", "Wickham", email = "cwickham@gmai.com", role = c("cre", "ctb")),
+    c(person("Charlotte", "Wickham", email = "cwickham@gmail.com", role = c("cre", "ctb")),
       person("Gábor", "Csárdi", role = "aut", comment = "gh package"),
       person("Jennifer", "Bryan", role = "aut", comment = "gh package"),
       person("Hadley", "Wickham", role = "aut", comment = "gh package"))
 Description: Minimal client to access the 'Canvas LMS' 'API'.
 License: MIT + file LICENSE
-LazyData: true
 URL: https://cwickham.github.io/cnvs, https://github.com/cwickham/cnvs
 BugReports: https://github.com/cwickham/cnvs/issues
+Depends:
+    R (>= 4.1)
+Imports:
+    cli (>= 3.0.1),
+    glue,
+    httr2 (>= 1.0.6),
+    jsonlite,
+    lifecycle,
+    rlang (>= 1.0.0),
+    fs
 Suggests:
     covr,
-    pingr,
-    testthat,
     knitr,
     rmarkdown,
     purrr,
     tibble,
     lubridate,
-    dplyr
-Imports:
-    ini,
-    jsonlite,
-    httr,
-    fs
-RoxygenNote: 7.1.1
-Roxygen: list(markdown = TRUE)
-Encoding: UTF-8
+    dplyr,
+    testthat (>= 3.0.0),
+    vctrs,
+    withr
 VignetteBuilder: knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

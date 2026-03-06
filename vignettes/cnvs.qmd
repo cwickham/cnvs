@@ -1,6 +1,5 @@
 ---
 title: "Getting started with cnvs"
-format: html
 vignette: >
   %\VignetteIndexEntry{Getting started with cnvs}
   %\VignetteEngine{quarto::html}
@@ -14,11 +13,54 @@ execute:
 ```{r}
 #| label: setup
 library(cnvs)
+library(purrr)
+library(dplyr)
+```
+
+```{r}
+#| label: setup-test-resources
+#| include: false
+account_id <- 81259
+
+# Create a new course for testing (enroll_me adds creator as teacher)
+test_course <- cnvs(
+  "POST /api/v1/accounts/:account_id/courses",
+  account_id = account_id,
+  course = list(
+    name = "cnvs test course",
+    course_code = "CNVS101"
+  ),
+  enroll_me = TRUE
+)$id
+
+# Create discussions for examples
+discussion1 <- cnvs(
+  "POST /api/v1/courses/:course_id/discussion_topics",
+  course_id = test_course,
+  title = "Welcome to the course",
+  message = "Introduce yourself here!"
+)
+
+discussion2 <- cnvs(
+  "POST /api/v1/courses/:course_id/discussion_topics",
+  course_id = test_course,
+  title = "Questions about Assignment 1",
+  message = "Post your questions here."
+)
+
+# Create an announcement
+announcement <- cnvs(
+  "POST /api/v1/courses/:course_id/discussion_topics",
+  course_id = test_course,
+  title = "Course starts Monday!",
+  message = "Looking forward to seeing you all.",
+  is_announcement = TRUE
+)
 ```
 
 ## Credentials
 
-To use the the API to Canvas you need an access token.  Access tokens are specific to your user account and Canvas domain.  Your Canvas domain, `CANVAS_DOMAIN`, is the URL of your institution's Canvas instance, e.g. <https://oregonstate.instructure.com> or, the instance provided by Instructure <https://canvas.instructure.com/>.
+To use the API to Canvas you need an access token. Access tokens are specific to your user account and Canvas domain. Your Canvas domain, `CANVAS_DOMAIN`, is the URL of your institution's Canvas instance, e.g. <https://oregonstate.instructure.com> or the instance provided by Instructure <https://canvas.instructure.com/>.
 
 You can request an access token at: `{CANVAS_DOMAIN}/profile/settings`, under "Approved Integrations:". Once generated, your token is only visible once so make sure you copy it.
 
@@ -26,23 +68,27 @@ To verify your token and domain, pass them to the `.token` and `.api_url` argume
 
 ```{r}
 #| label: whoami-explicit
-cnvs_whoami(.token = "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU",
-           .api_url = "https://canvas.instructure.com")
+#| eval: false
+cnvs_whoami(
+  .token = "your-token-here",
+  .api_url = "https://canvas.instructure.com"
+)
 ```
 
 The result should be successful and include your name and login id:
 
-```r
+```
   "name": "Charlotte Wickham",
   "login_id": "cwickham@gmail.com",
   "domain": "https://canvas.instructure.com",
-  "token": "mv..."
+  "token": "yo..."
 ```
 
-It is convenient to set environment variables to store your domain and token.  cnvs looks for these in `CANVAS_DOMAIN` and `CANVAS_API_TOKEN` respectively.  The easiest way to set them is to edit your `.Renviron` file:
+It is convenient to set environment variables to store your domain and token. cnvs looks for these in `CANVAS_DOMAIN` and `CANVAS_API_TOKEN` respectively. The easiest way to set them is to edit your `.Renviron` file:
 
 ```{r}
 #| label: edit-renviron
+#| eval: false
 # install.packages("usethis")
 usethis::edit_r_environ()
 ```
@@ -51,7 +97,7 @@ Add lines like these substituting in your own domain and token:
 
 ```
 CANVAS_DOMAIN="https://canvas.instructure.com"
-CANVAS_API_TOKEN="mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
+CANVAS_API_TOKEN="your-token-here"
 
 ```
 
@@ -64,11 +110,13 @@ Restart R and check by running `cnvs_whoami()` with no arguments:
 cnvs_whoami()
 ```
 
-```r
+```default
+{
   "name": "Charlotte Wickham",
-  "login_id": "cwickham@gmail.com",
+  "login_id": "116595056272912288897",
   "domain": "https://canvas.instructure.com",
-  "token": "mv..."
+  "token": "7~JU...mQac"
+}
 ```
 
 ## Finding your courses
@@ -77,8 +125,16 @@ The default `cnvs()` endpoint is `/api/v1/courses` which lists all your courses:
 
 ```{r}
 #| label: list-courses
-my_courses <- cnvs()
+cnvs()
 ```
+
+It's easier to work with this data if you extract the course names and IDs into a tibble:
+
+```{r}
+#| label: courses-tibble
+cnvs() |> map(\(x) tibble(id = x$id, name = x$name)) |> list_rbind()
+```
+
 
 You can also find your course ID by visiting your course in Canvas and examining the URL:
 
@@ -92,44 +148,51 @@ For the examples below, I'll use a `course_id` from one of my courses --- you'll
 
 ```{r}
 #| label: set-course-id
+#| eval: false
 course_id <- 14337283
+```
+
+```{r}
+#| label: set-course-id-real
+#| include: false
+course_id <- test_course
 ```
 
 ## Making queries
 
-To make a query to the Canvas LMS API use the `cnvs()` function.  The first argument is the API endpoint.  `cnvs()` is designed to make it as easy as possible to copy and paste from the [Canvas API documentation](https://canvas.instructure.com/doc/api/) (also available at [developerdocs.instructure.com](https://developerdocs.instructure.com/services/canvas)).
+To make a query to the Canvas LMS API use the `cnvs()` function. The first argument is the API endpoint. `cnvs()` is designed to make it as easy as possible to copy and paste from the [Canvas API documentation](https://canvas.instructure.com/doc/api/) (also available at [developerdocs.instructure.com](https://developerdocs.instructure.com/services/canvas)).
 
-As an example, imagine you want to see the discussion topics in your course.  Your first step is to find this task in the Canvas API docs --- it is listed under the Discussions resource as [List discussion topics](https://canvas.instructure.com/doc/api/discussion_topics.html#method.discussion_topics.index). There are two endpoints listed there:
+As an example, imagine you want to see the discussion topics in your course. Your first step is to find this task in the Canvas API docs --- it is listed under the Discussions resource as [List discussion topics](https://canvas.instructure.com/doc/api/discussion_topics.html#method.discussion_topics.index). There are two endpoints listed there:
 
 > GET /api/v1/courses/:course_id/discussion_topics
 
 > GET /api/v1/groups/:group_id/discussion_topics
 
-The first will list topics in a course and the second in a group --- you want the first.  Parts of the endpoint that are prefaced with a colon, `:`, are parameters, e.g. `:course_id` and `:group_id`. You will need to provide these parameters to `cnvs()` as named arguments (minus the `:`).
+The first will list topics in a course and the second in a group --- you want the first. Parts of the endpoint that are prefaced with a colon, `:`, are parameters, e.g. `:course_id` and `:group_id`. You will need to provide these parameters to `cnvs()` as named arguments (minus the `:`).
 
 To make the query, copy and paste the endpoint to the first argument of `cnvs()`, then add arguments for any parameters in the endpoint:
 
 ```{r}
 #| label: get-discussions
-discussions <- cnvs("GET /api/v1/courses/:course_id/discussion_topics",
-  course_id = course_id)
+discussions <- cnvs(
+  "GET /api/v1/courses/:course_id/discussion_topics",
+  course_id = course_id
+)
 ```
 
 ## Parsing responses
 
-`cnvs()` returns a list, but prints this list as JSON.  You can access components as you would elements in a list:
+`cnvs()` returns a list, but prints this list as JSON. You can access components as you would elements in a list:
 
 ```{r}
 #| label: access-element
 discussions[[1]]$title
 ```
 
-Functions for parsing the results are beyond the scope of cnvs, but you can parse them yourself using iteration functions from purrr.  For example, we could look at all the topic titles:
+Functions for parsing the results are beyond the scope of cnvs, but you can parse them yourself using iteration functions from purrr. For example, we could look at all the topic titles:
 
 ```{r}
 #| label: map-titles
-library(purrr)
-library(dplyr)
 discussions |>
   map_chr("title")
 ```
@@ -150,13 +213,15 @@ discussions |>
 
 ## Passing parameters to the endpoint
 
-The Canvas API docs also describe parameters that can be passed in the body of a query to each endpoint in the "Parameters" section.  You can add these as additional named arguments to `cnvs()`.  For example, for [List discussion topics](https://canvas.instructure.com/doc/api/discussion_topics.html#method.discussion_topics.index) a possible parameter is `only_announcements`, a boolean, that controls whether only announcements are returned.  You could add this to the call the `cnvs()` as another argument:
+The Canvas API docs also describe parameters that can be passed in the body of a query to each endpoint in the "Parameters" section. You can add these as additional named arguments to `cnvs()`. For example, for [List discussion topics](https://canvas.instructure.com/doc/api/discussion_topics.html#method.discussion_topics.index) a possible parameter is `only_announcements`, a boolean, that controls whether only announcements are returned. You could add this to the call the `cnvs()` as another argument:
 
 ```{r}
 #| label: get-announcements
-announcements <- cnvs("GET /api/v1/courses/:course_id/discussion_topics",
+announcements <- cnvs(
+  "GET /api/v1/courses/:course_id/discussion_topics",
   course_id = course_id,
-  only_announcements = TRUE)
+  only_announcements = TRUE
+)
 announcements |>
   map_chr("title")
 ```
@@ -167,27 +232,31 @@ Some parameters expect a more complicated object, for example the parameters to 
 > `module[unlock_at]`
 > `module[position]`
 
-This notation, a parameter name followed by another in square brackets, indicates a hierarchical structure.  Canvas is expecting the `module` parameter to be a JSON object. In `cnvs()` this translates to a named list, e.g.:
+This notation, a parameter name followed by another in square brackets, indicates a hierarchical structure. Canvas is expecting the `module` parameter to be a JSON object. In `cnvs()` this translates to a named list, e.g.:
 
 ```{r}
 #| label: create-module
-new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
+new_module <- cnvs(
+  "POST /api/v1/courses/:course_id/modules",
   course_id = course_id,
   module = list(
     name = "First module",
     unlock_at = "2019-09-01T6:59:00Z",
     position = 1
-  ))
+  )
+)
 ```
 
-If the square brackets are empty, Canvas is expecting a JSON array, which translates to an unnamed list in `cnvs()`.  An example of this structure is the `quiz_extensions` parameter to [set quiz extensions](https://canvas.instructure.com/doc/api/quiz_extensions.html#method.quizzes/quiz_extensions.create), e.g.
+If the square brackets are empty, Canvas is expecting a JSON array, which translates to an unnamed list in `cnvs()`. An example of this structure is the `quiz_extensions` parameter to [set quiz extensions](https://canvas.instructure.com/doc/api/quiz_extensions.html#method.quizzes/quiz_extensions.create), e.g.
 
 > `quiz_extensions[][user_id]`
 > `quiz_extensions[][extra_attempts]`
 
 ```{r}
 #| label: quiz-extensions
-quiz_ext <- cnvs("POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions",
+#| eval: false
+quiz_ext <- cnvs(
+  "POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions",
   course_id = course_id,
   quiz_id = 62851823,
   quiz_extensions = list(
@@ -205,7 +274,7 @@ quiz_ext <- cnvs("POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions",
 
 ## Uploading files
 
-To upload files use the `cnvs_upload()` function.  You need to locate the endpoint for the required context of the file.  E.g. To [upload a course file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file) the endpoint is:
+To upload files use the `cnvs_upload()` function. You need to locate the endpoint for the required context of the file. E.g. To [upload a course file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file) the endpoint is:
 
 ```
 POST /api/v1/courses/:course_id/files
@@ -220,8 +289,34 @@ POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/
 Pass the path to the file you wish to upload to `cnvs_upload()`:
 
 ```{r}
+#| label: create-temp-file
+#| include: false
+temp_file <- tempfile("cnvs-example-", fileext = ".txt")
+writeLines("This is an example file for the cnvs vignette.", temp_file)
+```
+
+```{r}
 #| label: upload-file
-cnvs_upload("notes.pdf", course_id = course_id, parent_folder_path = "handouts/")
+uploaded <- cnvs_upload(
+  temp_file,
+  course_id = course_id,
+  parent_folder_path = "handouts/"
+)
 ```
 
 The default endpoint uploads to a course. Like `cnvs()` you can specify endpoint parameters like `course_id`, or request body parameters like `parent_folder_path`, as additional arguments.
+
+```{r}
+#| label: cleanup
+#| include: false
+
+# Delete the test course (this deletes all content within it too)
+cnvs(
+  "DELETE /api/v1/courses/:course_id",
+  course_id = test_course,
+  event = "delete"
+)
+
+# Clean up temp file
+unlink(temp_file)
+```

@@ -154,4 +154,3 @@ fs::dir_delete(c("notes", "slides"))
 
 # Creating a canvas page from a Quarto document
 
-I

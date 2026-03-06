@@ -1,4 +1,5 @@
 
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # cnvs
@@ -58,11 +59,7 @@ extra arguments. E.g.
 ``` r
 my_courses <- cnvs("/api/v1/courses", enrollment_type = "teacher")
 vapply(my_courses, "[[", "", "name")
-#> [1] "ST499/599 Topics in Data Visualization"
-#> [2] "ST505 for ST511"                       
-#> [3] "ST511 Summer 2017"                     
-#> [4] "Stat 499/599, Data Programming in R"   
-#> [5] "Testing for cnvs"
+#> [1] "Test Course"
 ```
 
 The JSON result sent by the API is converted to an R object.
@@ -72,10 +69,9 @@ extra arguments:
 
 ``` r
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module" "First module" "First module"
-#> [5] "First module" "Test module"  "First module"
+#> [1] "First module" "First module"
 ```
 
 ### POST, PATCH, PUT and DELETE requests
@@ -86,7 +82,7 @@ module:
 
 ``` r
 new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
-  course_id = 1732420,  # set a parameter in the endpoint `:course_id`
+  course_id = 14337283,  # set a parameter in the endpoint `:course_id`
   module = list(        # a parameter sent in the body
     name = "First module",
     position = 1
@@ -96,17 +92,16 @@ new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
 
 ``` r
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module" "First module" "First module"
-#> [5] "First module" "First module" "Test module"  "First module"
+#> [1] "First module" "First module" "First module"
 ```
 
 Then update the name of the module:
 
 ``` r
 update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
-  course_id = 1732420,
+  course_id = 14337283,
   id = new_module$id,
   module = list(
     name = "Module 1"
@@ -116,39 +111,38 @@ update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
 
 ``` r
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "Module 1"     "First module" "First module" "First module"
-#> [5] "First module" "First module" "Test module"  "First module"
+#> [1] "Module 1"     "First module" "First module"
 ```
 
 Then, finally, delete the module:
 
 ``` r
 cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
-  course_id = 1732420,
+  course_id = 14337283,
   id = new_module$id
 )
 #> {
-#>   "id": 3539337,
+#>   "id": 22583009,
 #>   "position": 1,
 #>   "name": "Module 1",
 #>   "unlock_at": {},
 #>   "require_sequential_progress": false,
+#>   "requirement_type": "all",
 #>   "publish_final_grade": false,
 #>   "prerequisite_module_ids": [],
 #>   "published": false,
 #>   "items_count": 0,
-#>   "items_url": "https://canvas.instructure.com/api/v1/courses/1732420/modules/3539337/items"
+#>   "items_url": "https://canvas.instructure.com/api/v1/courses/14337283/modules/22583009/items"
 #> }
 ```
 
 ``` r
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module" "First module" "First module"
-#> [5] "First module" "Test module"  "First module"
+#> [1] "First module" "First module"
 ```
 
 ### Uploading files
@@ -162,8 +156,7 @@ the endpoint is:
 
 Whereas to [upload a file as an
 submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file)
-the endpoint
-    is:
+the endpoint is:
 
     POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files
 
@@ -172,7 +165,7 @@ wish to upload:
 
 ``` r
 cnvs_upload("/api/v1/courses/:course_id/files",
-  path = "notes.pdf", course_id = "1732420", parent_folder_path = "handouts/")
+  path = "notes.pdf", course_id = "14337283", parent_folder_path = "handouts/")
 ```
 
 Like `cnvs()` you can specify parameters in the endpoint, like

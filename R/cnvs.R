@@ -10,7 +10,8 @@
 #'   body, as JSON.
 #' * Convert the response to an R list using [jsonlite::fromJSON()].
 #'
-#' @param endpoint Canvas API endpoint. Must be one of the following forms:
+#' @param endpoint Canvas API endpoint. Defaults to `/api/v1/courses` which
+#'    lists your courses. Must be one of the following forms:
 #'    * `METHOD path`, e.g. `GET /api/v1/courses`,
 #'    * `path`, e.g. `/api/v1/courses`,
 #'    * `METHOD url`, e.g. `GET https://canvas.instructure.com/api/v1/courses`,
@@ -111,8 +112,7 @@
 #'
 #'
 cnvs <- function(
-
-  endpoint,
+  endpoint = "/api/v1/courses",
   ...,
   per_page = NULL,
   .per_page = NULL,

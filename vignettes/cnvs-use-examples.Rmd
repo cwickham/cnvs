@@ -21,7 +21,7 @@ library(tibble)
 
 I'll demonstrate with one of my own courses:
 ```{r}
-test_course <- 1732420
+test_course <- 14337283
 ```
 
 The code won't work for you because you don't have permissions on my course.  I recommend creating your own test course on https://canvas.instructure.com/, and substituting in your own course ID.
@@ -35,12 +35,12 @@ The code won't work for you because you don't have permissions on my course.  I 
 
 Start by generating a tibble to hold the parameters of your homeworks, being careful to have dates in the ISO 8601 format canvas expects:
 ```{r}
-iso8601 <- lubridate::stamp("2014-10-21T18:48:00Z")
+iso8601 <- lubridate::stamp("2019-10-21T18:48:00Z")
 
 hws <- tibble(
   week = 1:10,
   name = paste("Homework", week),
-  due = (lubridate::ymd_hm("2019-09-27 23:59", tz = "America/Los_Angeles") +
+  due = (lubridate::ymd_hm("2026-09-27 23:59", tz = "America/Los_Angeles") +
     lubridate::weeks(week - 1)) %>% iso8601()
 )
 hws
@@ -78,7 +78,7 @@ all_hws <- map2(hws$name, hws$due,
 Delete them all if you want:
 ```{r}
 all_hws %>% 
-  map_chr("id") %>% 
+  map_int("id") %>% 
   walk(~ cnvs("DELETE /api/v1/courses/:course_id/assignments/:id",
     id = .,
     course_id = test_course))
@@ -118,7 +118,7 @@ fs::dir_delete(c("notes", "slides"))
 
 # Posting to every group's group discussion board 
 
-**Problem**: You want to post your own reply in every group's discussion board, e.g. an introduction post in a group introduction discussion.
+**Problem**: You want to post your own reply in every group's discussion board, e.g. an introduction post in a group introduction discussion. 
 
 
 # Setting all discussions to be group discussions
@@ -129,5 +129,6 @@ fs::dir_delete(c("notes", "slides"))
 
 **Problem**: A student with a disability accommodation needs 1.5x time on all quizzes.
 
-# Creating a canvas page from an Rmarkdown document 
+# Creating a canvas page from an Quarto document 
 
+I 

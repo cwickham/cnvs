@@ -1,5 +1,5 @@
 ---
-output: github_document
+format: gfm
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -61,7 +61,7 @@ as extra arguments:
 
 ```{r}
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
 
@@ -73,7 +73,7 @@ HTTP verb before the endpoint, in the first argument. For example, to
 create a module:
 ```{r}
 new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
-  course_id = 1732420,  # set a parameter in the endpoint `:course_id`
+  course_id = 14337283,  # set a parameter in the endpoint `:course_id`
   module = list(        # a parameter sent in the body
     name = "First module",
     position = 1
@@ -83,14 +83,14 @@ new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
 
 ```{r}
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
 
 Then update the name of the module:
 ```{r}
 update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
-  course_id = 1732420,
+  course_id = 14337283,
   id = new_module$id,
   module = list(
     name = "Module 1"
@@ -100,21 +100,21 @@ update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
 
 ```{r}
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
 
 Then, finally, delete the module:
 ```{r}
 cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
-  course_id = 1732420,
+  course_id = 14337283,
   id = new_module$id
 )
 ```
 
 ```{r}
 test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
-  course_id = 1732420)
+  course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
 ### Uploading files
@@ -131,7 +131,7 @@ POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/
 Pass this endpoint to `cnvs_upload()` along with path to the file you wish to upload:
 ```{r, eval = FALSE}
 cnvs_upload("/api/v1/courses/:course_id/files",
-  path = "notes.pdf", course_id = "1732420", parent_folder_path = "handouts/")
+  path = "notes.pdf", course_id = "14337283", parent_folder_path = "handouts/")
 ```
 
 Like `cnvs()` you can specify parameters in the endpoint, like `course_id`, or parameters in the body of the request like `parent_folder_path` as additional arguments.

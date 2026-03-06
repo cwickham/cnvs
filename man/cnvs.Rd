@@ -5,7 +5,7 @@
 \title{Query the Canvas LMS API}
 \usage{
 cnvs(
-  endpoint,
+  endpoint = "/api/v1/courses",
   ...,
   per_page = NULL,
   .per_page = NULL,
@@ -24,7 +24,8 @@ cnvs(
 )
 }
 \arguments{
-\item{endpoint}{Canvas API endpoint. Must be one of the following forms:
+\item{endpoint}{Canvas API endpoint. Defaults to \verb{/api/v1/courses} which
+lists your courses. Must be one of the following forms:
 \itemize{
 \item \verb{METHOD path}, e.g. \code{GET /api/v1/courses},
 \item \code{path}, e.g. \verb{/api/v1/courses},

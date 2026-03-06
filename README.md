@@ -1,6 +1,6 @@
 
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.qmd. Please edit that file -->
 
 # cnvs
 
@@ -8,15 +8,13 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![{Travis build
-status}](https://travis-ci.org/cwickham/cnvs.svg?branch=master)](https://travis-ci.org/cwickham/cnvs)
 <!-- badges: end -->
 
 Minimalistic client to access the [Canvas LMS
 API](https://canvas.instructure.com/doc/api/index.html). Heavily
 borrowing from the infrastructure of [gh](https://github.com/r-lib/gh)
 
-## Philospophy
+## Philosophy
 
 cnvs is intentionally minimalist. To use it, you will need to become
 familiar with the [Canvas API
@@ -27,7 +25,7 @@ the Canvas API. cnvs also does no parsing of response content, you will
 need to extract the desired information from the returned lists
 yourself.
 
-While cnvs does facilite the automation of repetitive tasks in Canvas
+While cnvs does facilitate the automation of repetitive tasks in Canvas
 from R, it still requires a fair bit of expertise from the user. The
 hope is to use it as a foundation for a higher level api package, that
 is more user-friendly.
@@ -59,8 +57,9 @@ extra arguments. E.g.
 ``` r
 my_courses <- cnvs("/api/v1/courses", enrollment_type = "teacher")
 vapply(my_courses, "[[", "", "name")
-#> [1] "Test Course"
 ```
+
+    [1] "Test Course"
 
 The JSON result sent by the API is converted to an R object.
 
@@ -68,11 +67,12 @@ If the end point itself has parameters, these can also be passed as
 extra arguments:
 
 ``` r
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module"
 ```
+
+    [1] "First module" "First module" "First module" "First module"
 
 ### POST, PATCH, PUT and DELETE requests
 
@@ -91,11 +91,12 @@ new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
 ```
 
 ``` r
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module" "First module"
 ```
+
+    [1] "First module" "First module" "First module" "First module" "First module"
 
 Then update the name of the module:
 
@@ -110,11 +111,12 @@ update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
 ```
 
 ``` r
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "Module 1"     "First module" "First module"
 ```
+
+    [1] "Module 1"     "First module" "First module" "First module" "First module"
 
 Then, finally, delete the module:
 
@@ -123,27 +125,29 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
   course_id = 14337283,
   id = new_module$id
 )
-#> {
-#>   "id": 22583009,
-#>   "position": 1,
-#>   "name": "Module 1",
-#>   "unlock_at": {},
-#>   "require_sequential_progress": false,
-#>   "requirement_type": "all",
-#>   "publish_final_grade": false,
-#>   "prerequisite_module_ids": [],
-#>   "published": false,
-#>   "items_count": 0,
-#>   "items_url": "https://canvas.instructure.com/api/v1/courses/14337283/modules/22583009/items"
-#> }
 ```
 
+    {
+      "id": 22583195,
+      "position": 1,
+      "name": "Module 1",
+      "unlock_at": {},
+      "require_sequential_progress": false,
+      "requirement_type": "all",
+      "publish_final_grade": false,
+      "prerequisite_module_ids": [],
+      "published": false,
+      "items_count": 0,
+      "items_url": "https://canvas.instructure.com/api/v1/courses/14337283/modules/22583195/items"
+    } 
+
 ``` r
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
-#> [1] "First module" "First module"
 ```
+
+    [1] "First module" "First module" "First module" "First module"
 
 ### Uploading files
 
@@ -152,9 +156,9 @@ endpoint for the required context of the file. E.g. To [upload a course
 file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file)
 the endpoint is:
 
-    POST /api/v1/courses/:course_id/files 
+    POST /api/v1/courses/:course_id/files
 
-Whereas to [upload a file as an
+Whereas to [upload a file as a
 submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file)
 the endpoint is:
 
@@ -164,13 +168,12 @@ Pass this endpoint to `cnvs_upload()` along with path to the file you
 wish to upload:
 
 ``` r
-cnvs_upload("/api/v1/courses/:course_id/files",
-  path = "notes.pdf", course_id = "14337283", parent_folder_path = "handouts/")
+cnvs_upload("notes.pdf", course_id = "14337283", parent_folder_path = "handouts/")
 ```
 
-Like `cnvs()` you can specify parameters in the endpoint, like
-`course_id`, or parameters in the body of the request like
-`parent_folder_path` as additional arguments.
+The default endpoint uploads to a course. Like `cnvs()` you can specify
+endpoint parameters like `course_id`, or request body parameters like
+`parent_folder_path`, as additional arguments.
 
 ### Pagination
 

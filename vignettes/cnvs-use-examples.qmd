@@ -1,40 +1,46 @@
 ---
 title: "cnvs: avoiding point and click hell"
+format: html
+vignette: >
+  %\VignetteIndexEntry{cnvs: avoiding point and click hell}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+execute:
+  collapse: true
+  comment: "#>"
 ---
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
 
 My biggest complaint when using the Canvas API is the inordinate amount of pointing and clicking that it requires to get anything done.  Here are some examples of such tasks that are easily automated using the cnvs package.
 
 *Right now this is a work in progress to help me think about what a higher level API might look like*
 
-```{r setup}
+```{r}
+#| label: setup
 library(cnvs)
 library(purrr)
 library(tibble)
 ```
 
 I'll demonstrate with one of my own courses:
+
 ```{r}
+#| label: test-course
 test_course <- 14337283
 ```
 
 The code won't work for you because you don't have permissions on my course.  I recommend creating your own test course on https://canvas.instructure.com/, and substituting in your own course ID.
 
 
-# Create many assignments all at once 
+# Create many assignments all at once
 
 **Problem**: You have ten homeworks due every Friday that you want students to submit online.
 
 **Canvas API docs**: https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.create
 
 Start by generating a tibble to hold the parameters of your homeworks, being careful to have dates in the ISO 8601 format canvas expects:
+
 ```{r}
+#| label: homework-tibble
 iso8601 <- lubridate::stamp("2019-10-21T18:48:00Z")
 
 hws <- tibble(
@@ -47,8 +53,11 @@ hws
 ```
 
 Creating a single homework assignment with cnvs would look like:
-```{r, eval = FALSE}
-one_hw <- 
+
+```{r}
+#| label: create-single-hw
+#| eval: false
+one_hw <-
   cnvs("POST /api/v1/courses/:course_id/assignments",
     course_id = test_course,
     assignment = list(
@@ -61,8 +70,10 @@ one_hw <-
 ```
 
 To create them all, leverage `purrr::map2`
+
 ```{r}
-all_hws <- map2(hws$name, hws$due,  
+#| label: create-all-hws
+all_hws <- map2(hws$name, hws$due,
   ~ cnvs("POST /api/v1/courses/:course_id/assignments",
       course_id = test_course,
       assignment = list(
@@ -76,9 +87,11 @@ all_hws <- map2(hws$name, hws$due,
 ```
 
 Delete them all if you want:
+
 ```{r}
-all_hws %>% 
-  map_int("id") %>% 
+#| label: delete-all-hws
+all_hws %>%
+  map_int("id") %>%
   walk(~ cnvs("DELETE /api/v1/courses/:course_id/assignments/:id",
     id = .,
     course_id = test_course))
@@ -88,7 +101,10 @@ all_hws %>%
 
 **Problem**: You have a whole directory of files on your local computer you want to put in a course on Canvas, preferably maintaining your directory structure.
 
-```{r, include = FALSE, eval = FALSE}
+```{r}
+#| label: create-demo-files
+#| include: false
+#| eval: false
 library(fs)
 dir_create("slides")
 dir_create("notes")
@@ -97,11 +113,17 @@ file_create(path("notes", paste0("notes_", 1:5, ".pdf")))
 ```
 
 Let's say I have some lectures and worksheets on my local computer:
-```{r, echo = FALSE}
+
+```{r}
+#| label: show-dir-tree
+#| echo: false
 fs::dir_tree(regexp = "(notes.*)|(slides.*)")
 ```
 
-```{r, eval = FALSE, include = FALSE}
+```{r}
+#| label: cleanup-demo-files
+#| eval: false
+#| include: false
 fs::dir_delete(c("notes", "slides"))
 ```
 
@@ -112,13 +134,13 @@ fs::dir_delete(c("notes", "slides"))
 **Problem**: You've copied over an old course where you released solution files.  You now want to make sure that these files are all now unpublished for the new term.
 
 ```{r}
-
+#| label: unpublish-files
 ```
 
 
-# Posting to every group's group discussion board 
+# Posting to every group's group discussion board
 
-**Problem**: You want to post your own reply in every group's discussion board, e.g. an introduction post in a group introduction discussion. 
+**Problem**: You want to post your own reply in every group's discussion board, e.g. an introduction post in a group introduction discussion.
 
 
 # Setting all discussions to be group discussions
@@ -129,6 +151,6 @@ fs::dir_delete(c("notes", "slides"))
 
 **Problem**: A student with a disability accommodation needs 1.5x time on all quizzes.
 
-# Creating a canvas page from an Quarto document 
+# Creating a canvas page from a Quarto document
 
-I 
+I

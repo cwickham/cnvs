@@ -20,6 +20,10 @@ to specify endpoint parameters, e.g. \code{course_id}, parameters for the file
 upload, e.g. \code{parent_folder_path}, or other parameters to \code{\link[=cnvs]{cnvs()}}
 like \code{.token} or \code{.api_url}.}
 }
+\value{
+Invisibly returns the response from the upload confirmation.
+On success, prints the download URL for the uploaded file.
+}
 \description{
 Upload a local file to a location on Canvas LMS. Read more about possible parameters
 at \url{https://canvas.instructure.com/doc/api/file.file_uploads.html}.

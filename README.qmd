@@ -1,39 +1,38 @@
 ---
 format: gfm
+execute:
+  collapse: true
+  comment: "#>"
+knitr:
+  opts_chunk:
+    fig.path: "man/figures/README-"
+    out.width: "100%"
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
+<!-- README.md is generated from README.qmd. Please edit that file -->
 
 # cnvs
 
 <!-- badges: start -->
-  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-  [![{Travis build status}](https://travis-ci.org/cwickham/cnvs.svg?branch=master)](https://travis-ci.org/cwickham/cnvs)
-  <!-- badges: end -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+<!-- badges: end -->
 
 Minimalistic client to access the
-[Canvas LMS API](https://canvas.instructure.com/doc/api/index.html).  Heavily borrowing from the infrastructure of [gh](https://github.com/r-lib/gh) 
+[Canvas LMS API](https://canvas.instructure.com/doc/api/index.html).  Heavily borrowing from the infrastructure of [gh](https://github.com/r-lib/gh)
 
-## Philospophy
+## Philosophy
 
 cnvs is intentionally minimalist.  To use it, you will need to become familiar with the [Canvas API documentation](https://canvas.instructure.com/doc/api/index.html).  cnvs does no checking on the endpoints you provide, nor the objects you pass.  This has the advantage that cnvs is not dependent on the specifics of the Canvas API.  cnvs also does no parsing of response content, you will need to extract the desired information from the returned lists yourself.
 
-While cnvs does facilite the automation of repetitive tasks in Canvas from R,  it still requires a fair bit of expertise from the user.  The hope is to use it as a foundation for a higher level api package, that is more user-friendly.
+While cnvs does facilitate the automation of repetitive tasks in Canvas from R,  it still requires a fair bit of expertise from the user.  The hope is to use it as a foundation for a higher level api package, that is more user-friendly.
 
 ## Installation
 
 Install the package from GitHub:
 
-```{r eval = FALSE}
+```{r}
+#| label: install
+#| eval: false
 # install.packages("remotes")
 remotes::install_github("cwickham/cnvs")
 ```
@@ -41,6 +40,7 @@ remotes::install_github("cwickham/cnvs")
 ## Usage
 
 ```{r}
+#| label: setup
 library(cnvs)
 ```
 
@@ -50,6 +50,7 @@ listed in the [documentation](https://canvas.instructure.com/doc/api/index.html)
 The first argument of `cnvs()` is the endpoint. Note that the leading `/api/v1/` must be included as well, but this facilitates copy and pasting directly from the documentation. Parameters can be passed as extra arguments. E.g.
 
 ```{r}
+#| label: list-courses
 my_courses <- cnvs("/api/v1/courses", enrollment_type = "teacher")
 vapply(my_courses, "[[", "", "name")
 ```
@@ -60,7 +61,8 @@ If the end point itself has parameters, these can also be passed
 as extra arguments:
 
 ```{r}
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+#| label: list-modules
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
@@ -71,7 +73,9 @@ vapply(test_modules, "[[", "", "name")
 POST, PUT, and DELETE requests can be sent by including the
 HTTP verb before the endpoint, in the first argument. For example, to
 create a module:
+
 ```{r}
+#| label: create-module
 new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
   course_id = 14337283,  # set a parameter in the endpoint `:course_id`
   module = list(        # a parameter sent in the body
@@ -82,13 +86,16 @@ new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
 ```
 
 ```{r}
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+#| label: list-modules-after-create
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
 
 Then update the name of the module:
+
 ```{r}
+#| label: update-module
 update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
   course_id = 14337283,
   id = new_module$id,
@@ -99,13 +106,16 @@ update_module <- cnvs("PUT /api/v1/courses/:course_id/modules/:id",
 ```
 
 ```{r}
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+#| label: list-modules-after-update
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
 
 Then, finally, delete the module:
+
 ```{r}
+#| label: delete-module
 cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
   course_id = 14337283,
   id = new_module$id
@@ -113,34 +123,43 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 ```
 
 ```{r}
-test_modules <- cnvs("/api/v1/courses/:course_id/modules", 
+#| label: list-modules-after-delete
+test_modules <- cnvs("/api/v1/courses/:course_id/modules",
   course_id = 14337283)
 vapply(test_modules, "[[", "", "name")
 ```
+
 ### Uploading files
 
 To upload files use the `cnvs_upload()` function.  You need to locate the endpoint for the required context of the file.  E.g. To [upload a course file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file) the endpoint is:
+
 ```
-POST /api/v1/courses/:course_id/files 
+POST /api/v1/courses/:course_id/files
 ```
-Whereas to [upload a file as an submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file) the endpoint is:
+
+Whereas to [upload a file as a submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file) the endpoint is:
+
 ```
 POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files
 ```
 
 Pass this endpoint to `cnvs_upload()` along with path to the file you wish to upload:
-```{r, eval = FALSE}
-cnvs_upload("/api/v1/courses/:course_id/files",
-  path = "notes.pdf", course_id = "14337283", parent_folder_path = "handouts/")
+
+```{r}
+#| label: upload-file
+#| eval: false
+cnvs_upload("notes.pdf", course_id = "14337283", parent_folder_path = "handouts/")
 ```
 
-Like `cnvs()` you can specify parameters in the endpoint, like `course_id`, or parameters in the body of the request like `parent_folder_path` as additional arguments.
- 
+The default endpoint uploads to a course. Like `cnvs()` you can specify endpoint parameters like `course_id`, or request body parameters like `parent_folder_path`, as additional arguments.
+
 ### Pagination
 
 Supply the `page` parameter to get subsequent pages:
 
-```{r eval = FALSE}
+```{r}
+#| label: pagination
+#| eval: false
 my_courses2 <- cnvs("/api/v1/courses", enrollment_type = "teacher",
   page = 2)
 vapply(my_courses2, "[[", "", "name")

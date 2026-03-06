@@ -6,6 +6,7 @@ vignette: >
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 execute:
+  eval: false
   collapse: true
   comment: "#>"
 ---

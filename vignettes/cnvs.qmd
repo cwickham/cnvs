@@ -6,6 +6,7 @@ vignette: >
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 execute:
+  eval: false
   collapse: true
   comment: "#>"
 ---
@@ -25,7 +26,6 @@ To verify your token and domain, pass them to the `.token` and `.api_url` argume
 
 ```{r}
 #| label: whoami-explicit
-#| eval: false
 cnvs_whoami(.token = "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU",
            .api_url = "https://canvas.instructure.com")
 ```
@@ -43,7 +43,6 @@ It is convenient to set environment variables to store your domain and token.  c
 
 ```{r}
 #| label: edit-renviron
-#| eval: false
 # install.packages("usethis")
 usethis::edit_r_environ()
 ```
@@ -62,7 +61,6 @@ Restart R and check by running `cnvs_whoami()` with no arguments:
 
 ```{r}
 #| label: whoami
-#| eval: false
 cnvs_whoami()
 ```
 
@@ -189,7 +187,6 @@ If the square brackets are empty, Canvas is expecting a JSON array, which transl
 
 ```{r}
 #| label: quiz-extensions
-#| eval: false
 quiz_ext <- cnvs("POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions",
   course_id = course_id,
   quiz_id = 62851823,
@@ -224,7 +221,6 @@ Pass the path to the file you wish to upload to `cnvs_upload()`:
 
 ```{r}
 #| label: upload-file
-#| eval: false
 cnvs_upload("notes.pdf", course_id = course_id, parent_folder_path = "handouts/")
 ```
 

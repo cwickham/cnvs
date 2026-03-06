@@ -1,0 +1,127 @@
+# cnvs: avoiding point and click hell
+
+My biggest complaint when using the Canvas API is the inordinate amount
+of pointing and clicking that it requires to get anything done. Here are
+some examples of such tasks that are easily automated using the cnvs
+package.
+
+*Right now this is a work in progress to help me think about what a
+higher level API might look like*
+
+``` r
+library(cnvs)
+library(purrr)
+library(tibble)
+```
+
+I’ll demonstrate with one of my own courses:
+
+``` r
+test_course <- 14337283
+```
+
+The code won’t work for you because you don’t have permissions on my
+course. I recommend creating your own test course on
+https://canvas.instructure.com/, and substituting in your own course ID.
+
+## Create many assignments all at once
+
+**Problem**: You have ten homeworks due every Friday that you want
+students to submit online.
+
+**Canvas API docs**:
+https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.create
+
+Start by generating a tibble to hold the parameters of your homeworks,
+being careful to have dates in the ISO 8601 format canvas expects:
+
+``` r
+iso8601 <- lubridate::stamp("2019-10-21T18:48:00Z")
+
+hws <- tibble(
+  week = 1:10,
+  name = paste("Homework", week),
+  due = (lubridate::ymd_hm("2026-09-27 23:59", tz = "America/Los_Angeles") +
+    lubridate::weeks(week - 1)) %>% iso8601()
+)
+hws
+```
+
+Creating a single homework assignment with cnvs would look like:
+
+``` r
+one_hw <-
+  cnvs("POST /api/v1/courses/:course_id/assignments",
+    course_id = test_course,
+    assignment = list(
+      name = hws$name[[1]],
+      due_at = hws$due[[1]],
+      points_possible = 10,
+      submission_types = list("online_upload")
+    )
+)
+```
+
+To create them all, leverage
+[`purrr::map2`](https://purrr.tidyverse.org/reference/map2.html)
+
+``` r
+all_hws <- map2(hws$name, hws$due,
+  ~ cnvs("POST /api/v1/courses/:course_id/assignments",
+      course_id = test_course,
+      assignment = list(
+        name = .x,
+        due_at = .y,
+        points_possible = 10,
+        submission_types = list("online_upload")
+      )
+  )
+)
+```
+
+Delete them all if you want:
+
+``` r
+all_hws %>%
+  map_int("id") %>%
+  walk(~ cnvs("DELETE /api/v1/courses/:course_id/assignments/:id",
+    id = .,
+    course_id = test_course))
+```
+
+## Uploading course documents
+
+**Problem**: You have a whole directory of files on your local computer
+you want to put in a course on Canvas, preferably maintaining your
+directory structure.
+
+Let’s say I have some lectures and worksheets on my local computer:
+
+## Unpublish all files that match a pattern
+
+**Problem**: You’ve copied over an old course where you released
+solution files. You now want to make sure that these files are all now
+unpublished for the new term.
+
+## Posting to every group’s group discussion board
+
+**Problem**: You want to post your own reply in every group’s discussion
+board, e.g. an introduction post in a group introduction discussion.
+
+## Setting all discussions to be group discussions
+
+**Problem**: You’ve copied over an old course where you used groups from
+some discussions. Canvas has copied over the group set, but it doesn’t
+have any students assigned to the groups. You could assign students to
+the old groups in the old group set, but you would rather set up a new
+group set that randomly assigns students to groups, then use this new
+group set for all the discussions.
+
+## Setting time extensions on quizzes
+
+**Problem**: A student with a disability accommodation needs 1.5x time
+on all quizzes.
+
+## Creating a canvas page from a Quarto document
+
+I

@@ -1,4 +1,3 @@
-destination: docs
 template:
   bootstrap: 5
 url: https://cwickham.github.io/cnvs

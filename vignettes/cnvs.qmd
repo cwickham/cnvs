@@ -10,12 +10,12 @@ execute:
   comment: "#>"
 ---
 
-## Credentials
-
 ```{r}
 #| label: setup
 library(cnvs)
 ```
+
+## Credentials
 
 To use the the API to Canvas you need an access token.  Access tokens are specific to your user account and Canvas domain.  Your Canvas domain, `CANVAS_DOMAIN`, is the URL of your institution's Canvas instance, e.g. <https://oregonstate.instructure.com> or, the instance provided by Instructure <https://canvas.instructure.com/>.
 
@@ -73,6 +73,30 @@ cnvs_whoami()
   "token": "mv..."
 ```
 
+## Finding your courses
+
+The default `cnvs()` endpoint is `/api/v1/courses` which lists all your courses:
+
+```{r}
+#| label: list-courses
+my_courses <- cnvs()
+```
+
+You can also find your course ID by visiting your course in Canvas and examining the URL:
+
+```
+https://canvas.instructure.com/courses/1732420
+```
+
+Your course ID comes right after `/courses/`, e.g. 1732420 in this case.
+
+For the examples below, I'll use a `course_id` from one of my courses --- you'll need to substitute your own:
+
+```{r}
+#| label: set-course-id
+course_id <- 14337283
+```
+
 ## Making queries
 
 To make a query to the Canvas LMS API use the `cnvs()` function.  The first argument is the API endpoint.  `cnvs()` is designed to make it as easy as possible to copy and paste from the [Canvas API documentation](https://canvas.instructure.com/doc/api/) (also available at [developerdocs.instructure.com](https://developerdocs.instructure.com/services/canvas)).
@@ -89,12 +113,9 @@ To make the query, copy and paste the endpoint to the first argument of `cnvs()`
 
 ```{r}
 #| label: get-discussions
-course_id <- 14337283
 discussions <- cnvs("GET /api/v1/courses/:course_id/discussion_topics",
   course_id = course_id)
 ```
-
-I'm using a `course_id` for one of my courses, you'll need to use your own (see [How do I find my course id?](#course-id)).
 
 ## Parsing responses
 
@@ -185,29 +206,26 @@ quiz_ext <- cnvs("POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions",
 )
 ```
 
-## How do I find my course ID? {#course-id}
+## Uploading files
 
-One option is to visit your course in Canvas and examine the URL:
+To upload files use the `cnvs_upload()` function.  You need to locate the endpoint for the required context of the file.  E.g. To [upload a course file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file) the endpoint is:
 
 ```
-https://canvas.instructure.com/courses/1732420
+POST /api/v1/courses/:course_id/files
 ```
 
-Your course ID comes right after `/courses/`, e.g. 1732420 in this case.
+Whereas to [upload a file as a submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file) the endpoint is:
 
-Alternatively, from R, the default `cnvs()` endpoint is `/api/v1/courses` which will list all your courses:
+```
+POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files
+```
+
+Pass the path to the file you wish to upload to `cnvs_upload()`:
 
 ```{r}
-#| label: list-courses
-my_courses <- cnvs()
+#| label: upload-file
+#| eval: false
+cnvs_upload("notes.pdf", course_id = course_id, parent_folder_path = "handouts/")
 ```
 
-Then you need to parse them and look for the `id` column in the appropriate row:
-
-```{r}
-#| label: courses-tibble
-#| message: false
-my_courses |>
-  map(\(x) as_tibble(compact(x))) |>
-  list_rbind()
-```
+The default endpoint uploads to a course. Like `cnvs()` you can specify endpoint parameters like `course_id`, or request body parameters like `parent_folder_path`, as additional arguments.

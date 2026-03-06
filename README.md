@@ -72,7 +72,7 @@ test_modules <- cnvs("/api/v1/courses/:course_id/modules",
 vapply(test_modules, "[[", "", "name")
 ```
 
-    [1] "First module" "First module" "First module" "First module"
+    [1] "First module" "First module" "First module" "First module" "First module"
 
 ### POST, PATCH, PUT and DELETE requests
 
@@ -97,6 +97,7 @@ vapply(test_modules, "[[", "", "name")
 ```
 
     [1] "First module" "First module" "First module" "First module" "First module"
+    [6] "First module"
 
 Then update the name of the module:
 
@@ -117,6 +118,7 @@ vapply(test_modules, "[[", "", "name")
 ```
 
     [1] "Module 1"     "First module" "First module" "First module" "First module"
+    [6] "First module"
 
 Then, finally, delete the module:
 
@@ -128,7 +130,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
 ```
 
     {
-      "id": 22583195,
+      "id": 22583369,
       "position": 1,
       "name": "Module 1",
       "unlock_at": {},
@@ -138,7 +140,7 @@ cnvs("DELETE /api/v1/courses/:course_id/modules/:id",
       "prerequisite_module_ids": [],
       "published": false,
       "items_count": 0,
-      "items_url": "https://canvas.instructure.com/api/v1/courses/14337283/modules/22583195/items"
+      "items_url": "https://canvas.instructure.com/api/v1/courses/14337283/modules/22583369/items"
     } 
 
 ``` r
@@ -147,33 +149,7 @@ test_modules <- cnvs("/api/v1/courses/:course_id/modules",
 vapply(test_modules, "[[", "", "name")
 ```
 
-    [1] "First module" "First module" "First module" "First module"
-
-### Uploading files
-
-To upload files use the `cnvs_upload()` function. You need to locate the
-endpoint for the required context of the file. E.g. To [upload a course
-file](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file)
-the endpoint is:
-
-    POST /api/v1/courses/:course_id/files
-
-Whereas to [upload a file as a
-submission](https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.create_file)
-the endpoint is:
-
-    POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files
-
-Pass this endpoint to `cnvs_upload()` along with path to the file you
-wish to upload:
-
-``` r
-cnvs_upload("notes.pdf", course_id = "14337283", parent_folder_path = "handouts/")
-```
-
-The default endpoint uploads to a course. Like `cnvs()` you can specify
-endpoint parameters like `course_id`, or request body parameters like
-`parent_folder_path`, as additional arguments.
+    [1] "First module" "First module" "First module" "First module" "First module"
 
 ### Pagination
 

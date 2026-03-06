@@ -70,23 +70,27 @@
 
     <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cwickham.github.io/cnvs">cnvs</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cwickham.github.io/cnvs">cnvs</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <section class="level2"><h2 id="credentials">Credentials<a class="anchor" aria-label="anchor" href="#credentials"></a>
 </h2>
-<p>To use the the API to Canvas you need an access token. Access tokens are specific to your user account and Canvas domain. Your Canvas domain, <code>CANVAS_DOMAIN</code>, is the URL of your institution’s Canvas instance, e.g. <a href="https://oregonstate.instructure.com" class="external-link uri">https://oregonstate.instructure.com</a> or, the instance provided by Instructure <a href="https://canvas.instructure.com/" class="external-link uri">https://canvas.instructure.com/</a>.</p>
+<p>To use the API to Canvas you need an access token. Access tokens are specific to your user account and Canvas domain. Your Canvas domain, <code>CANVAS_DOMAIN</code>, is the URL of your institution’s Canvas instance, e.g. <a href="https://oregonstate.instructure.com" class="external-link uri">https://oregonstate.instructure.com</a> or the instance provided by Instructure <a href="https://canvas.instructure.com/" class="external-link uri">https://canvas.instructure.com/</a>.</p>
 <p>You can request an access token at: <code>{CANVAS_DOMAIN}/profile/settings</code>, under “Approved Integrations:”. Once generated, your token is only visible once so make sure you copy it.</p>
 <p>To verify your token and domain, pass them to the <code>.token</code> and <code>.api_url</code> arguments of <code><a href="../reference/cnvs_whoami.html">cnvs_whoami()</a></code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cnvs_whoami.html">cnvs_whoami</a></span><span class="op">(</span>.token <span class="op">=</span> <span class="st">"mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"</span>,</span>
-<span>           .api_url <span class="op">=</span> <span class="st">"https://canvas.instructure.com"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/cnvs_whoami.html">cnvs_whoami</a></span><span class="op">(</span></span>
+<span>  .token <span class="op">=</span> <span class="st">"your-token-here"</span>,</span>
+<span>  .api_url <span class="op">=</span> <span class="st">"https://canvas.instructure.com"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>The result should be successful and include your name and login id:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>  <span class="st">"name"</span><span class="sc">:</span> <span class="st">"Charlotte Wickham"</span>,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"login_id"</span><span class="sc">:</span> <span class="st">"cwickham@gmail.com"</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"domain"</span><span class="sc">:</span> <span class="st">"https://canvas.instructure.com"</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"token"</span><span class="sc">:</span> <span class="st">"mv..."</span></span></code></pre></div>
+<pre><code>  "name": "Charlotte Wickham",
+  "login_id": "cwickham@gmail.com",
+  "domain": "https://canvas.instructure.com",
+  "token": "yo..."</code></pre>
 <p>It is convenient to set environment variables to store your domain and token. cnvs looks for these in <code>CANVAS_DOMAIN</code> and <code>CANVAS_API_TOKEN</code> respectively. The easiest way to set them is to edit your <code>.Renviron</code> file:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
@@ -95,30 +99,37 @@
 </div>
 <p>Add lines like these substituting in your own domain and token:</p>
 <pre><code><span><span class="va">CANVAS_DOMAIN</span><span class="op">=</span><span class="st">"https://canvas.instructure.com"</span></span>
-<span><span class="va">CANVAS_API_TOKEN</span><span class="op">=</span><span class="st">"mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"</span></span></code></pre>
+<span><span class="va">CANVAS_API_TOKEN</span><span class="op">=</span><span class="st">"your-token-here"</span></span></code></pre>
 <p>Make sure your <code>.Renviron</code> file ends with an empty line.</p>
 <p>Restart R and check by running <code><a href="../reference/cnvs_whoami.html">cnvs_whoami()</a></code> with no arguments:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/cnvs_whoami.html">cnvs_whoami</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  <span class="st">"name"</span><span class="sc">:</span> <span class="st">"Charlotte Wickham"</span>,</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"login_id"</span><span class="sc">:</span> <span class="st">"cwickham@gmail.com"</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"domain"</span><span class="sc">:</span> <span class="st">"https://canvas.instructure.com"</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"token"</span><span class="sc">:</span> <span class="st">"mv..."</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  "name": "Charlotte Wickham",</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  "login_id": "116595056272912288897",</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  "domain": "https://canvas.instructure.com",</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  "token": "7~JU...mQac"</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </section><section class="level2"><h2 id="finding-your-courses">Finding your courses<a class="anchor" aria-label="anchor" href="#finding-your-courses"></a>
 </h2>
 <p>The default <code><a href="../reference/cnvs.html">cnvs()</a></code> endpoint is <code>/api/v1/courses</code> which lists all your courses:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_courses</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>It’s easier to work with this data if you extract the course names and IDs into a tibble:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>id <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">id</span>, name <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>You can also find your course ID by visiting your course in Canvas and examining the URL:</p>
 <pre><code>https://canvas.instructure.com/courses/1732420</code></pre>
 <p>Your course ID comes right after <code>/courses/</code>, e.g. 1732420 in this case.</p>
 <p>For the examples below, I’ll use a <code>course_id</code> from one of my courses — you’ll need to substitute your own:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">course_id</span> <span class="op">&lt;-</span> <span class="fl">14337283</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="making-queries">Making queries<a class="anchor" aria-label="anchor" href="#making-queries"></a>
@@ -134,28 +145,28 @@
 <p>The first will list topics in a course and the second in a group — you want the first. Parts of the endpoint that are prefaced with a colon, <code>:</code>, are parameters, e.g. <code>:course_id</code> and <code>:group_id</code>. You will need to provide these parameters to <code><a href="../reference/cnvs.html">cnvs()</a></code> as named arguments (minus the <code>:</code>).</p>
 <p>To make the query, copy and paste the endpoint to the first argument of <code><a href="../reference/cnvs.html">cnvs()</a></code>, then add arguments for any parameters in the endpoint:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">discussions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span><span class="st">"GET /api/v1/courses/:course_id/discussion_topics"</span>,</span>
-<span>  course_id <span class="op">=</span> <span class="va">course_id</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">discussions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span></span>
+<span>  <span class="st">"GET /api/v1/courses/:course_id/discussion_topics"</span>,</span>
+<span>  course_id <span class="op">=</span> <span class="va">course_id</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="parsing-responses">Parsing responses<a class="anchor" aria-label="anchor" href="#parsing-responses"></a>
 </h2>
 <p><code><a href="../reference/cnvs.html">cnvs()</a></code> returns a list, but prints this list as JSON. You can access components as you would elements in a list:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">discussions</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">title</span></span></code></pre></div>
 </div>
 <p>Functions for parsing the results are beyond the scope of cnvs, but you can parse them yourself using iteration functions from purrr. For example, we could look at all the topic titles:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="va">discussions</span> <span class="op">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">discussions</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="st">"title"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Or squeeze the entire response into a tibble:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">discussions</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">x</span> <span class="op">|&gt;</span></span>
@@ -169,10 +180,12 @@
 </h2>
 <p>The Canvas API docs also describe parameters that can be passed in the body of a query to each endpoint in the “Parameters” section. You can add these as additional named arguments to <code><a href="../reference/cnvs.html">cnvs()</a></code>. For example, for <a href="https://canvas.instructure.com/doc/api/discussion_topics.html#method.discussion_topics.index" class="external-link">List discussion topics</a> a possible parameter is <code>only_announcements</code>, a boolean, that controls whether only announcements are returned. You could add this to the call the <code><a href="../reference/cnvs.html">cnvs()</a></code> as another argument:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">announcements</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span><span class="st">"GET /api/v1/courses/:course_id/discussion_topics"</span>,</span>
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">announcements</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span></span>
+<span>  <span class="st">"GET /api/v1/courses/:course_id/discussion_topics"</span>,</span>
 <span>  course_id <span class="op">=</span> <span class="va">course_id</span>,</span>
-<span>  only_announcements <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  only_announcements <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">announcements</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="st">"title"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -182,22 +195,25 @@
 </blockquote>
 <p>This notation, a parameter name followed by another in square brackets, indicates a hierarchical structure. Canvas is expecting the <code>module</code> parameter to be a JSON object. In <code><a href="../reference/cnvs.html">cnvs()</a></code> this translates to a named list, e.g.:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">new_module</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span><span class="st">"POST /api/v1/courses/:course_id/modules"</span>,</span>
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">new_module</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span></span>
+<span>  <span class="st">"POST /api/v1/courses/:course_id/modules"</span>,</span>
 <span>  course_id <span class="op">=</span> <span class="va">course_id</span>,</span>
 <span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    name <span class="op">=</span> <span class="st">"First module"</span>,</span>
 <span>    unlock_at <span class="op">=</span> <span class="st">"2019-09-01T6:59:00Z"</span>,</span>
 <span>    position <span class="op">=</span> <span class="fl">1</span></span>
-<span>  <span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>If the square brackets are empty, Canvas is expecting a JSON array, which translates to an unnamed list in <code><a href="../reference/cnvs.html">cnvs()</a></code>. An example of this structure is the <code>quiz_extensions</code> parameter to <a href="https://canvas.instructure.com/doc/api/quiz_extensions.html#method.quizzes/quiz_extensions.create" class="external-link">set quiz extensions</a>, e.g.</p>
 <blockquote>
 <p><code>quiz_extensions[][user_id]</code> <code>quiz_extensions[][extra_attempts]</code></p>
 </blockquote>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">quiz_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span><span class="st">"POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions"</span>,</span>
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">quiz_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs.html">cnvs</a></span><span class="op">(</span></span>
+<span>  <span class="st">"POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions"</span>,</span>
 <span>  course_id <span class="op">=</span> <span class="va">course_id</span>,</span>
 <span>  quiz_id <span class="op">=</span> <span class="fl">62851823</span>,</span>
 <span>  quiz_extensions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -220,8 +236,12 @@
 <pre><code>POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files</code></pre>
 <p>Pass the path to the file you wish to upload to <code><a href="../reference/cnvs_upload.html">cnvs_upload()</a></code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cnvs_upload.html">cnvs_upload</a></span><span class="op">(</span><span class="st">"notes.pdf"</span>, course_id <span class="op">=</span> <span class="va">course_id</span>, parent_folder_path <span class="op">=</span> <span class="st">"handouts/"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">uploaded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cnvs_upload.html">cnvs_upload</a></span><span class="op">(</span></span>
+<span>  <span class="va">temp_file</span>,</span>
+<span>  course_id <span class="op">=</span> <span class="va">course_id</span>,</span>
+<span>  parent_folder_path <span class="op">=</span> <span class="st">"handouts/"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>The default endpoint uploads to a course. Like <code><a href="../reference/cnvs.html">cnvs()</a></code> you can specify endpoint parameters like <code>course_id</code>, or request body parameters like <code>parent_folder_path</code>, as additional arguments.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">

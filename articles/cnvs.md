@@ -2,14 +2,16 @@
 
 ``` r
 library(cnvs)
+library(purrr)
+library(dplyr)
 ```
 
 ## Credentials
 
-To use the the API to Canvas you need an access token. Access tokens are
+To use the API to Canvas you need an access token. Access tokens are
 specific to your user account and Canvas domain. Your Canvas domain,
 `CANVAS_DOMAIN`, is the URL of your institution’s Canvas instance,
-e.g. <https://oregonstate.instructure.com> or, the instance provided by
+e.g. <https://oregonstate.instructure.com> or the instance provided by
 Instructure <https://canvas.instructure.com/>.
 
 You can request an access token at: `{CANVAS_DOMAIN}/profile/settings`,
@@ -21,18 +23,18 @@ To verify your token and domain, pass them to the `.token` and
 [`cnvs_whoami()`](https://cwickham.github.io/cnvs/reference/cnvs_whoami.md):
 
 ``` r
-cnvs_whoami(.token = "mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU",
-           .api_url = "https://canvas.instructure.com")
+cnvs_whoami(
+  .token = "your-token-here",
+  .api_url = "https://canvas.instructure.com"
+)
 ```
 
 The result should be successful and include your name and login id:
 
-``` r
-  "name": "Charlotte Wickham",
-  "login_id": "cwickham@gmail.com",
-  "domain": "https://canvas.instructure.com",
-  "token": "mv..."
-```
+      "name": "Charlotte Wickham",
+      "login_id": "cwickham@gmail.com",
+      "domain": "https://canvas.instructure.com",
+      "token": "yo..."
 
 It is convenient to set environment variables to store your domain and
 token. cnvs looks for these in `CANVAS_DOMAIN` and `CANVAS_API_TOKEN`
@@ -47,7 +49,7 @@ usethis::edit_r_environ()
 Add lines like these substituting in your own domain and token:
 
     CANVAS_DOMAIN="https://canvas.instructure.com"
-    CANVAS_API_TOKEN="mvvGbKyGK9n5T57qhEu8K1sNMt85OLoNGTepqd3v5NEcWMuxArSz5aaXppPjodr5eU"
+    CANVAS_API_TOKEN="your-token-here"
 
 Make sure your `.Renviron` file ends with an empty line.
 
@@ -59,11 +61,13 @@ with no arguments:
 cnvs_whoami()
 ```
 
-``` r
+``` default
+{
   "name": "Charlotte Wickham",
-  "login_id": "cwickham@gmail.com",
+  "login_id": "116595056272912288897",
   "domain": "https://canvas.instructure.com",
-  "token": "mv..."
+  "token": "7~JU...mQac"
+}
 ```
 
 ## Finding your courses
@@ -73,7 +77,14 @@ The default
 is `/api/v1/courses` which lists all your courses:
 
 ``` r
-my_courses <- cnvs()
+cnvs()
+```
+
+It’s easier to work with this data if you extract the course names and
+IDs into a tibble:
+
+``` r
+cnvs() |> map(\(x) tibble(id = x$id, name = x$name)) |> list_rbind()
 ```
 
 You can also find your course ID by visiting your course in Canvas and
@@ -123,8 +134,10 @@ To make the query, copy and paste the endpoint to the first argument of
 arguments for any parameters in the endpoint:
 
 ``` r
-discussions <- cnvs("GET /api/v1/courses/:course_id/discussion_topics",
-  course_id = course_id)
+discussions <- cnvs(
+  "GET /api/v1/courses/:course_id/discussion_topics",
+  course_id = course_id
+)
 ```
 
 ## Parsing responses
@@ -142,8 +155,6 @@ can parse them yourself using iteration functions from purrr. For
 example, we could look at all the topic titles:
 
 ``` r
-library(purrr)
-library(dplyr)
 discussions |>
   map_chr("title")
 ```
@@ -175,9 +186,11 @@ the [`cnvs()`](https://cwickham.github.io/cnvs/reference/cnvs.md) as
 another argument:
 
 ``` r
-announcements <- cnvs("GET /api/v1/courses/:course_id/discussion_topics",
+announcements <- cnvs(
+  "GET /api/v1/courses/:course_id/discussion_topics",
   course_id = course_id,
-  only_announcements = TRUE)
+  only_announcements = TRUE
+)
 announcements |>
   map_chr("title")
 ```
@@ -196,13 +209,15 @@ parameter to be a JSON object. In
 translates to a named list, e.g.:
 
 ``` r
-new_module <- cnvs("POST /api/v1/courses/:course_id/modules",
+new_module <- cnvs(
+  "POST /api/v1/courses/:course_id/modules",
   course_id = course_id,
   module = list(
     name = "First module",
     unlock_at = "2019-09-01T6:59:00Z",
     position = 1
-  ))
+  )
+)
 ```
 
 If the square brackets are empty, Canvas is expecting a JSON array,
@@ -216,7 +231,8 @@ e.g.
 > `quiz_extensions[][user_id]` `quiz_extensions[][extra_attempts]`
 
 ``` r
-quiz_ext <- cnvs("POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions",
+quiz_ext <- cnvs(
+  "POST /api/v1/courses/:course_id/quizzes/:quiz_id/extensions",
   course_id = course_id,
   quiz_id = 62851823,
   quiz_extensions = list(
@@ -253,7 +269,11 @@ Pass the path to the file you wish to upload to
 [`cnvs_upload()`](https://cwickham.github.io/cnvs/reference/cnvs_upload.md):
 
 ``` r
-cnvs_upload("notes.pdf", course_id = course_id, parent_folder_path = "handouts/")
+uploaded <- cnvs_upload(
+  temp_file,
+  course_id = course_id,
+  parent_folder_path = "handouts/"
+)
 ```
 
 The default endpoint uploads to a course. Like

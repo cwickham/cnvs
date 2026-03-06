@@ -123,5 +123,3 @@ group set for all the discussions.
 on all quizzes.
 
 ## Creating a canvas page from a Quarto document
-
-I
